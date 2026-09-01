@@ -16,8 +16,9 @@
 - No backend database
 
 ## Hosting & Deployment
-- **Netlify** — free tier, automatic HTTPS, Git-triggered deploys
-- **Domain** — Netlify subdomain initially, custom domain later
+- **Vercel** — free tier, automatic HTTPS, Git-triggered auto-deploy on push (user already had account)
+- **Domain** — Vercel subdomain (toolbox-lilac-three.vercel.app) initially, custom domain later
+- **Live URL** — https://toolbox-lilac-three.vercel.app
 
 ## Payments
 - **Gumroad** or **LemonSqueezy** — free product listing, handle checkout/delivery
@@ -27,7 +28,7 @@
 - Zero server costs
 - Fastest path from code to live product
 - No framework overhead — vanilla JS is sufficient for utility tools
-- Netlify handles HTTPS, deploy, and CDN automatically
+- Vercel handles HTTPS, deploy, and CDN automatically
 - Gumroad/LemonSqueezy handles payments without own infrastructure
 - Manual PWA chosen over vite-plugin-pwa due to Node 16 ESM compatibility constraints
 

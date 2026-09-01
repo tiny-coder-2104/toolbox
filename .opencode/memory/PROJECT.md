@@ -20,10 +20,10 @@ Developer Utility PWA — browser-based versions of common CLI/networking/securi
 - Ubuntu 18.04 base machine
 
 ## Current Phase
-Planning → Setup → Build MVP → Deploy → Sell
+Planning → Setup → Build MVP → Deploy → **Sell/Freelance** (live; now focusing on freelance Track B)
 
 ## Hosting
-Netlify (free tier, auto-HTTPS, Git-based deploys)
+Vercel (free tier, auto-HTTPS, Git auto-deploy) — live at https://toolbox-lilac-three.vercel.app
 
 ## Payments
 Gumroad or LemonSqueezy (free to list, handle payments and delivery)

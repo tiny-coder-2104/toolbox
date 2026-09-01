@@ -31,19 +31,22 @@
 - Styled tool views in src/style.css (toolbar, textarea, output, copy buttons)
 - ✅ Production build successful (nvm Node 16.20.2, vite 4.5.14)
 - ✅ Pushed to GitHub (branch master)
-- 🔜 Next: connect Netlify for auto-deploy → live URL for portfolio
+- ✅ Deployed live on Vercel (https://toolbox-lilac-three.vercel.app), auto-deploy on push confirmed
+- 🔜 Next: register on OnlineJobs.ph → apply to PWA jobs → first freelance income (Track B)
 
 ## Completed Milestones
 - ✅ Memory system designed and all 13 files created
 - ✅ Project scaffolded (Vite + vanilla JS)
 - ✅ Production build verified
 - ✅ PWA manifest + service worker working
-- ✅ Git repo initialized + pushed to GitHub (tiny-coder-2104/toolbox)
+- ✅ Git repo initialized + pushed to GitHub (tiny-coder-2104/toolbox) via deploy key
 - ✅ All 5 tool views functional (JSON, Base64, Regex, URL, UUID)
+- ✅ Base64 Unicode bug fixed (UTF-8 safe TextEncoder/TextDecoder)
+- ✅ Deployed live on Vercel (toolbox-lilac-three.vercel.app)
 
 ## To-Do (Remaining)
-- Connect Netlify for auto-deploy (get live URL)
-- Test PWA installability on mobile
-- Register on OnlineJobs.ph jobseeker + apply to PWA jobs (e.g. job 1675298)
-- List on Gumroad
+- Register on OnlineJobs.ph jobseeker + apply to PWA jobs (target: job 1675298 "7 apps bundled into one")
+- Draft + submit tailored application (7-question, started with "offline-first")
+- Test PWA installability + offline on mobile
+- Track A: list Pro tier / pay-what-you-want on Gumroad
 - Launch and promote

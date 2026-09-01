@@ -11,14 +11,15 @@
 
 ## Development Tools
 - **Vite** — project scaffolding and dev server
-- **Workbox** — service worker generation and caching
+- **Manual service worker** — public/sw.js (NOT Workbox; vite-plugin-pwa incompatible with Node 16)
 - **Lighthouse** — PWA audit and performance testing
 - **Git** — version control
-- **GitHub** — remote repo + Netlify integration
+- **GitHub** — remote repo (tiny-coder-2104/toolbox) + Vercel integration
 
 ## Deployment
-- **Netlify** — free tier, Git-connected, auto-deploy on push
-- **Netlify CLI** — `netlify deploy` for manual deploys
+- **Vercel** — free tier, Git-connected, auto-deploy on push (live: toolbox-lilac-three.vercel.app)
+- **Vercel CLI** — for manual `vercel` / `vercel --prod` deploys
+- **Deploy key** — ed25519 at ~/.ssh/tinycoder_deploy_key (used for git push to GitHub)
 
 ## Payments
 - **Gumroad** — product listing, checkout, delivery
@@ -33,9 +34,9 @@
 - No backend code — client-side only
 - All tools use pure JavaScript, no WASM unless necessary
 - Service worker handles caching and offline support
-- HTTPS enforced at all times (via Netlify)
+- HTTPS enforced at all times (via Vercel)
 - Commit frequently to git
-- Push to GitHub → Netlify auto-deploys
+- Push to GitHub → Vercel auto-deploys
 
 ## Node.js Installation (Ubuntu 18.04)
 - Use NodeSource or nvm for Node.js 18+

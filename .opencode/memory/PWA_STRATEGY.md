@@ -1,5 +1,22 @@
 # PWA Business Strategy
 
+## Current Strategy (Revised 2026, Session 3) — TWO TRACKS
+The original plan was a paid-only toolbox ($3-5 one-time). Revised because: broke user, zero traffic/distribution, commodity product, and paid tools get no organic reach. Now split into two tracks:
+
+### Track B — Freelance dev work (PRIORITY, user needs money soon)
+- The toolbox = **live portfolio proof** to land paid PWA/web dev work.
+- Platforms: OnlineJobs.ph, OLJ, Upwork, Fiverr, /r/forhire.
+- Target: first paid gig within 1-2 weeks. Volume applications (5-10/day).
+- Niche where PH rates win: PWAs, vanilla-JS utility tools, small business sites, browser extensions.
+- **Found target job:** OnlineJobs.ph ID 1675298 "I have 7 apps bundled into one" — $15-25/hr, paid trial, vanilla-JS offline-first PWAs. Fit: excellent (matches our stack). Caveat: no paid RevenueCat/Stripe exp; trial fee to propose.
+
+### Track A — Toolbox monetization (LONG GAME, not income now)
+- Keep toolbox **free-first** to drive traffic/links (free tools get organic reach; paid ones don't).
+- Monetize the tail later: **Pro tier** (batch processing, CSV↔JSON, JWT decoder, advanced exports) — pay-what-you-want / one-time via Gumroad — plus a subtle "Support / Hire the dev" link on every page.
+
+### Key insight
+- Marketing amplifies an existing flywheel; it doesn't create one at zero distribution. Don't sink days into perfecting a commodity toolbox before landing paid work.
+
 ## Product Positioning
 Web Toolbox — a clean, fast, ad-free suite of developer utilities that works offline and installs on any phone.
 
@@ -23,7 +40,7 @@ Web Toolbox — a clean, fast, ad-free suite of developer utilities that works o
 ## Cost Advantage
 - 50-70% cheaper than native dual-platform development
 - No 30% app store commission on direct web sales
-- $0 hosting (Netlify free tier)
+- $0 hosting (Vercel free tier)
 - $0 payment processing overhead (Gumroad handles it)
 
 ## Marketing Channels (All Free)

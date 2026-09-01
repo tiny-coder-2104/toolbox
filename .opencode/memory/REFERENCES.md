@@ -7,14 +7,19 @@
 - PWAs cost 50-70% less than native apps; time to market roughly half
 
 ## Tools & Platforms
-- **Netlify** — free hosting, auto-HTTPS, Git-based deploys
+- **Vercel** — free hosting, auto-HTTPS, Git auto-deploy (live: toolbox-lilac-three.vercel.app)
 - **Gumroad** — digital product marketplace, free listing, handles payments
 - **LemonSqueezy** — alternative to Gumroad for digital products
 - **Vite** — frontend build tool, fast HMR, minimal config
-- **vite-plugin-pwa** — PWA plugin for Vite using Workbox
-- **Workbox** — Google's library for service worker caching strategies
+- **vite-plugin-pwa** — PWA plugin for Vite using Workbox (NOT used — Node 16 incompat)
+- **Workbox** — Google's library for service worker caching strategies (NOT used — manual SW instead)
 - **Bubblewrap / PWABuilder** — wrap PWA as TWA for Google Play
 - **Capacitor** — wrap PWA in native shell for App Store
+
+## Freelance Platforms (Track B)
+- **OnlineJobs.ph** — PH-based job board, high Filipino dev success rate (target job: ID 1675298 "7 apps bundled into one", $15-25/hr, paid trial)
+- **OLJ / Upwork / Fiverr** — additional freelance channels
+- **/r/forhire, /r/freelance_forhire** — Reddit freelance job posts
 
 ## OpenCode System
 - **opencode.jsonc** — global config at `~/.config/opencode/opencode.jsonc`
