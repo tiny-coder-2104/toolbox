@@ -32,7 +32,17 @@
 - ✅ Production build successful (nvm Node 16.20.2, vite 4.5.14)
 - ✅ Pushed to GitHub (branch master)
 - ✅ Deployed live on Vercel (https://toolbox-lilac-three.vercel.app), auto-deploy on push confirmed
+- ✅ Fixed Base64 Unicode bug (UTF-8 safe TextEncoder/TextDecoder)
 - 🔜 Next: register on OnlineJobs.ph → apply to PWA jobs → first freelance income (Track B)
+
+## Session 4 — 2026-09-01
+**Action**: Installed Ponytail plugin for opencode (global)
+- Installed `@dietrichgebert/ponytail` globally via `opencode plugin @dietrichgebert/ponytail --global`
+- Added to `~/.config/opencode/opencode.jsonc` plugin array
+- Resolved to `~/.cache/opencode/packages/@dietrichgebert/ponytail@latest`
+- Verified plugin self-contained (in-process, no separate node binary needed — safe on GLIBC 2.27)
+- Provides `/ponytail lite|full|ultra|off`, `/ponytail-review`, `/ponytail-audit`, `/ponytail-debt`, `/ponytail-gain`, `/ponytail-help`
+- ⚠️ OpenCode must be restarted for the plugin to load
 
 ## Completed Milestones
 - ✅ Memory system designed and all 13 files created

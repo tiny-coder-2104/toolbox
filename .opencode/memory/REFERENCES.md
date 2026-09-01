@@ -28,6 +28,7 @@
 - **`.opencode/`** — project directory for agents, commands, plugins
 - **`instructions` field** — array of file paths injected into system prompt
 - **`AGENTS.md`** — auto-loaded from project root for project rules
+- **Ponytail plugin** — `@dietrichgebert/ponytail` installed GLOBAL (opencode.jsonc `plugin` array). Injects "lazy senior dev" ruleset (YAGNI/stdlib/native-first). Commands: `/ponytail [lite|full|ultra|off]`, `/ponytail-review`, `/ponytail-audit`, `/ponytail-debt`, `/ponytail-gain`, `/ponytail-help`. Resolved to `~/.cache/opencode/packages/@dietrichgebert/ponytail@latest`. Works in-process (no separate node binary needed — safe on GLIBC 2.27). Requires opencode restart to load.
 
 ## Memory Plugins (Future Enhancement)
 - `@csuwl/opencode-memory-plugin` — OpenClaw-style memory with semantic search
