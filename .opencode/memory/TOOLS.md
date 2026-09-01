@@ -37,6 +37,7 @@
 - HTTPS enforced at all times (via Vercel)
 - Commit frequently to git
 - Push to GitHub → Vercel auto-deploys
+- **Ponytail is ACTIVE globally** (opencode plugin) — lazy-senior-dev ruleset governs coding: YAGNI, reuse stdlib/codebase before new code, native features over deps, shortest working diff. Change level via `/ponytail [lite|full|ultra|off]`. Persists across sessions.
 
 ## Node.js Installation (Ubuntu 18.04)
 - Use NodeSource or nvm for Node.js 18+
