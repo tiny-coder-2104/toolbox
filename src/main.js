@@ -14,6 +14,22 @@ function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
+function base64Encode(str) {
+  const bytes = new TextEncoder().encode(str)
+  let bin = ''
+  const chunk = 0x8000
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk))
+  }
+  return btoa(bin)
+}
+
+function base64Decode(b64) {
+  const bin = atob(b64.replace(/\s/g, ''))
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0))
+  return new TextDecoder().decode(bytes)
+}
+
 function homeView() {
   return `
     <header>
@@ -181,10 +197,6 @@ function render() {
 }
 
 function wireTool(id, main) {
-  const setOut = (el, val) => {
-    if (el) el.value ? el.value = val : el.textContent = val
-  }
-
   if (id === 'json') {
     const inEl = main.querySelector('#json-in')
     const outEl = main.querySelector('#json-out')
@@ -212,8 +224,8 @@ function wireTool(id, main) {
         if (!v) { outEl.textContent = 'Enter some input first'; return }
         try {
           outEl.textContent = btn.dataset.act === 'encode'
-            ? btoa(v)
-            : decodeURIComponent(escape(atob(v.trim())))
+            ? base64Encode(v)
+            : base64Decode(v)
         } catch (e) {
           outEl.textContent = 'Error: ' + e.message
         }
