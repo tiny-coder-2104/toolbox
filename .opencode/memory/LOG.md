@@ -21,15 +21,29 @@
 - ✅ dist/ contains: index.html, manifest.json, sw.js, favicon.png, icons/, assets/
 - Added .gitignore
 
+## Session 3 — 2026-09-01
+**Action**: Git/GitHub setup + built all 5 functional tool views
+- Generated ed25519 deploy key for tiny-coder-2104/toolbox repo
+- Wired SSH config (`~/.ssh/tinycoder_deploy_key`), verified GitHub auth
+- Set git remote origin to git@github.com:tiny-coder-2104/toolbox.git
+- Set git identity to tiny-coder-2104
+- Built hash-router + 5 tool views in src/main.js: JSON format/minify/validate, Base64 encode/decode, Regex tester (live highlights + count), URL encode/decode (+component), UUID v1/v4 generator
+- Styled tool views in src/style.css (toolbar, textarea, output, copy buttons)
+- ✅ Production build successful (nvm Node 16.20.2, vite 4.5.14)
+- ✅ Pushed to GitHub (branch master)
+- 🔜 Next: connect Netlify for auto-deploy → live URL for portfolio
+
 ## Completed Milestones
 - ✅ Memory system designed and all 13 files created
 - ✅ Project scaffolded (Vite + vanilla JS)
 - ✅ Production build verified
 - ✅ PWA manifest + service worker working
+- ✅ Git repo initialized + pushed to GitHub (tiny-coder-2104/toolbox)
+- ✅ All 5 tool views functional (JSON, Base64, Regex, URL, UUID)
 
 ## To-Do (Remaining)
-- Push to GitHub → connect Netlify for auto-deploy
+- Connect Netlify for auto-deploy (get live URL)
 - Test PWA installability on mobile
-- Build individual tool pages (JSON, Base64, Regex, URL, UUID)
+- Register on OnlineJobs.ph jobseeker + apply to PWA jobs (e.g. job 1675298)
 - List on Gumroad
 - Launch and promote
