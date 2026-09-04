@@ -14,6 +14,7 @@ Master index for the TinyCoder PWA project. Load files lazily — only read what
 | REFERENCES.md | URLs, resources, research findings |
 | TOOLS.md | Tool conventions, workflow rules |
 | LOG.md | Session changelog |
+| GUMROAD_ANALYSIS.md | Gumroad product strategy: market data, repositioned product plan |
 
 ## How to use
 - Start here: read INDEX.md → USER.md → CONTEXT.md → PHASES.md

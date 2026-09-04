@@ -8,6 +8,7 @@
 
 ## Tools & Platforms
 - **Vercel** — free hosting, auto-HTTPS, Git auto-deploy (live: toolbox-lilac-three.vercel.app)
+- **Supabase** — managed Postgres BaaS. Org `tinycoders-studio`, project `gchcatdprvpmbwvfxqzi`. Client: publishable key (`sb_publishable_...`) via supabase-js, RLS-gated. Deploys: `supabase login` (PAT) → `supabase link --project-ref` → `supabase db push`. Legacy anon/service_role JWT keys deprecated end of 2026. NOTE: CLI is a native binary; may not run on glibc 2.27. Docs: docs.agentmail.to-style llms at docs.supabase.com.
 - **Gumroad** — digital product marketplace, free listing, handles payments
 - **LemonSqueezy** — alternative to Gumroad for digital products
 - **Vite** — frontend build tool, fast HMR, minimal config
