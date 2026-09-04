@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80">
+  <style>
+    @font-face {
+      font-family: 'Space Grotesk';
+      src: url('fonts/SpaceGrotesk-Bold.woff2') format('woff2');
+      font-weight: 700;
+      font-display: swap;
+    }
+    .wordmark {
+      font-family: 'Space Grotesk', Ubuntu, 'DejaVu Sans', sans-serif;
+      font-weight: 700;
+      font-size: 48px;
+      fill: #E2E8F0;
+      letter-spacing: -1px;
+    }
+  </style>
+
+  <!-- Icon: &lt; bracket -->
+  <rect x="0" y="0" width="80" height="80" rx="12" ry="12" fill="#0F172A"/>
+  <rect x="0" y="0" width="80" height="80" rx="12" ry="12" fill="none" stroke="#06B6D4" stroke-width="1.5"/>
+  <path d="M 18 58 L 18 18 L 62 18"
+        fill="none"
+        stroke="#06B6D4"
+        stroke-width="8"
+        stroke-linecap="square"
+        stroke-linejoin="miter"/>
+
+  <!-- Wordmark -->
+  <text x="98" y="54" class="wordmark">TinyCoder</text>
+</svg>

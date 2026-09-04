@@ -1,9 +1,9 @@
 :root {
-  --bg: #0f0f1a;
-  --card-bg: #1a1a2e;
-  --text: #e0e0e0;
-  --accent: #4fc3f7;
-  --border: #2a2a4a;
+  --bg: #0F172A;
+  --card-bg: #1E293B;
+  --text: #E2E8F0;
+  --accent: #06B6D4;
+  --border: #334155;
 }
 
 * {
@@ -87,7 +87,7 @@ footer {
   font-size: 0.85rem;
   font-weight: bold;
   color: var(--accent);
-  background: rgba(79, 195, 247, 0.12);
+  background: rgba(6, 182, 212, 0.12);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.25rem 0.5rem;
@@ -149,7 +149,7 @@ footer {
 
 .tool-bar button:hover {
   border-color: var(--accent);
-  background: rgba(79, 195, 247, 0.1);
+  background: rgba(6, 182, 212, 0.1);
 }
 
 textarea {
@@ -171,7 +171,7 @@ textarea:focus {
 }
 
 textarea[readonly] {
-  background: rgba(26, 26, 46, 0.6);
+  background: rgba(30, 41, 59, 0.6);
 }
 
 .field {
