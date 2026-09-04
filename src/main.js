@@ -1,6 +1,7 @@
 import './style.css'
 
-const app = document.getElementById('app')
+// ponytail: lazy lookup — top-level getElementById is null when module runs before DOM parsed
+const getApp = () => document.getElementById('app')
 
 const TOOLS = {
   json: { title: 'JSON Formatter', desc: 'Format, validate, and minify JSON', icon: '{}' },
@@ -181,6 +182,8 @@ function uuidv1() {
 }
 
 function render() {
+  const app = getApp()
+  if (!app) return // DOM not ready yet
   const hash = location.hash.replace(/^#\/?/, '')
   const [id] = hash.split('/')
   app.innerHTML = id && TOOLS[id] ? toolView(id) : homeView()

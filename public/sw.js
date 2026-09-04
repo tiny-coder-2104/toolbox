@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tinycoder-v1'
+const CACHE_NAME = 'tinycoder-v2'
 const ASSETS = [
   '/',
   '/index.html',
