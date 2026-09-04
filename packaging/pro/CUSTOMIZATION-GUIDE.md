@@ -57,7 +57,7 @@ Same file, update the footer in `homeView()` and `toolView()`:
 
 ## Using the AI Chatbot Prompt Kit
 
-The `AI-CHATBOT-PROMPT-KIT/` folder contains ready-to-use system prompts for different business types:
+The `AI-CHATBOT-PROMPT-KIT/` folder contains 5 industry-specific prompt files + a DISCLAIMER.md:
 
 | File | Use Case |
 |------|----------|

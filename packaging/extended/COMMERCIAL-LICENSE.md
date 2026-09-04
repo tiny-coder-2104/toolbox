@@ -19,6 +19,10 @@ This extends the MIT license included with the source code.
 
 You do not need to credit TinyCoder in client-facing products. Remove branding, replace with your own — that's what this template is for.
 
+## No Indemnification
+
+This license does not include any indemnification. The buyer assumes all liability for how the template is used and deployed.
+
 ## Copyright
 
 TinyCoder retains copyright of the original template code. Your client project and customizations are yours.

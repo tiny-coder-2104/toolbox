@@ -22,7 +22,7 @@ No. The PWA is a separate installable app. It doesn't affect your existing site.
 
 ## 6. Can I send push notifications?
 
-Yes on Android. Safari (iOS) is adding support — it's in beta as of 2024. Works on desktop Chrome and Firefox today.
+Yes on Android. Safari (iOS) is adding support — it's in beta as of 2026. Works on desktop Chrome and Firefox today.
 
 ## 7. How much does it cost?
 
