@@ -1,0 +1,1 @@
+/home/yuki/ai_works/pseudo_human/.opencode/agents/product-reviewer.md

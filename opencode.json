@@ -1,1 +1,1 @@
-{"$schema": "https://opencode.ai/config.json", "instructions": ["AGENTS.md", ".opencode/memory/INDEX.md"]}
+{"$schema": "https://opencode.ai/config.json", "instructions": ["AGENTS.md", ".opencode/memory/INDEX.md"], "agent": {"dev-worker": {"mode": "subagent"}, "product-reviewer": {"mode": "subagent"}}, "permission": {"task": {"*": "deny", "dev-worker": "allow", "product-reviewer": "allow"}}}
