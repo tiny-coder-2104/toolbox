@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-09-05T12:27:55.460039",
+  "tab": "Ship Client PWAs in an Afternoon",
+  "before": {
+    "fine_print": "NOT_FOUND",
+    "title": "Ship Client PWAs in an Afternoon"
+  },
+  "after": {
+    "fine_print": "NOT_FOUND"
+  },
+  "save_clicked": true,
+  "results": {
+    "Product Name": true,
+    "Summary": false,
+    "Fine Print": false,
+    "Description (Tiptap)": false,
+    "Variant Basic price": false,
+    "Variant Pro price": false,
+    "Variant Agency License price": false,
+    "Variant Basic desc": false,
+    "Variant Pro desc": false,
+    "Variant Agency License desc": false,
+    "Fine Print (post-save)": false
+  }
+}
