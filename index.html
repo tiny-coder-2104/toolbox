@@ -11,11 +11,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>TinyCoder — PWA Starter Template for Freelancers</title>
-    <!-- Chatbase AI Chatbot -->
     <script src="/chatbase-init.js" defer></script>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
+    <script>
+      window.chatbaseConfig = {
+        chatbotId: "u-Y9MHASFos_xwosYW3Eo"
+      }
+    </script>
+    <script src="https://www.chatbase.co/embed.min.js"></script>
+    <script src="/lead-capture.js" defer></script>
   </body>
 </html>
