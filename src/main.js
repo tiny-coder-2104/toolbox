@@ -60,7 +60,7 @@ function homeView() {
     <header>
       <h1>TinyCoder</h1>
       <p>Web Toolbox — developer utilities in your browser</p>
-      <span class="social-proof">100+ developers use TinyCoder</span>
+      <span class="social-proof">Built for freelance web developers</span>
       <div class="trust-badges">
         <span>✓ Works Offline</span>
         <span>✓ No Backend Required</span>
