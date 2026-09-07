@@ -8,7 +8,7 @@ import './style.css'
 
 const GUMROAD_URL = 'https://tinycoderstudio.gumroad.com/l/gyhehh'
 const GUMROAD_UTM = '?utm_source=toolbox&utm_medium=free_tool&utm_campaign=lead_gen_2026'
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'
+const GA_MEASUREMENT_ID = 'G-VF1WRGBKM5'
 
 function gtag(event, params) {
   window.dataLayer = window.dataLayer || []
