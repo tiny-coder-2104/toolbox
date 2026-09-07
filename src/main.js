@@ -364,9 +364,9 @@ if ('serviceWorker' in navigator) {
 // Chatbase AI Chatbot - Load after DOM ready
 (function(){
   if(!window.chatbase||window.chatbase("getState")!=="initialized"){
-    window.chatbase=(...arguments)=>{
+    window.chatbase=function(){
       if(!window.chatbase.q){window.chatbase.q=[]}
-      window.chatbase.q.push(arguments)
+      window.chatbase.q.push([].slice.call(arguments))
     };
     window.chatbase=new Proxy(window.chatbase,{
       get(target,prop){
