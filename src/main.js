@@ -325,6 +325,42 @@ if ('serviceWorker' in navigator) {
   })
 }
 
+// Lead capture - intercept chat and POST to Make.com webhook
+(function() {
+  const WEBHOOK = 'https://hook.us2.make.com/wgwq68459cpjed3h7is6onuf026q23cx'
+  const seen = new Set()
+  function extractEmail(t) { const m = t.match(/[\w.+-]+@[\w-]+\.[\w.-]+/); return m ? m[0] : '' }
+  function extractName(t) {
+    const p = [/(?:my name is|i'm|i am|call me|this is)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i, /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)$/]
+    for (const r of p) { const m = t.match(r); if (m) return m[1] }
+    return ''
+  }
+  function sendLead(d) {
+    const body = JSON.stringify({ name: d.name||'', email: d.email||'', company: d.company||'', message: d.message||'', source: 'chatbase' })
+    if (navigator.sendBeacon) navigator.sendBeacon(WEBHOOK, new Blob([body], {type:'application/json'}))
+    else fetch(WEBHOOK, {method:'POST', headers:{'Content-Type':'application/json'}, body, mode:'no-cors'})
+  }
+  function processMsg(text) {
+    if (!text || text.length < 3 || seen.has(text)) return
+    seen.add(text)
+    if (seen.size > 100) seen.clear()
+    const email = extractEmail(text)
+    const name = extractName(text)
+    const cm = text.match(/(?:company|org|organization|business|firm|from)\s+(?:is\s+)?([A-Z][\w\s&.]+)/i)
+    const company = cm ? cm[1].trim() : ''
+    if (email || name || company) sendLead({name, email, company, message: text})
+  }
+  function observeChat() {
+    const obs = new MutationObserver(mutations => {
+      mutations.forEach(m => m.addedNodes.forEach(n => {
+        if (n.nodeType === 1 && n.textContent) processMsg(n.textContent.trim())
+      }))
+    })
+    obs.observe(document.body, {childList: true, subtree: true})
+  }
+  window.addEventListener('load', () => setTimeout(observeChat, 3000))
+})();
+
 // Chatbase AI Chatbot - Load after DOM ready
 (function(){
   if(!window.chatbase||window.chatbase("getState")!=="initialized"){
