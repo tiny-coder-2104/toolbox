@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA vs Native App: Which Should Freelance Devs Build? | TinyCoder</title>
+  <meta name="description" content="Native costs $20k+ and takes months. PWAs cost $0 to deploy and work offline. Here's when each makes sense for freelance web developers.">
+  <meta property="og:title" content="PWA vs Native App: Which Should Freelance Devs Build?">
+  <meta property="og:description" content="Native costs $20k+ and takes months. PWAs cost $0 to deploy and work offline.">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    :root{--bg:#0F172A;--card-bg:#1E293B;--text:#E2E8F0;--accent:#06B6D4;--border:#334155}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.7}
+    .nav{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.5rem}
+    .nav a{color:var(--accent);text-decoration:none;font-weight:600;font-size:0.95rem}
+    .nav a:hover{text-decoration:underline}
+    article{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem}
+    .date{font-size:0.8rem;color:#64748b;margin-bottom:0.5rem}
+    h1{font-size:1.8rem;color:var(--accent);margin-bottom:1rem;line-height:1.3}
+    h2{font-size:1.3rem;color:var(--accent);margin:2rem 0 0.75rem}
+    p{color:#ccc;margin-bottom:1rem;font-size:0.95rem}
+    a{color:var(--accent)}
+    pre{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;font-size:0.85rem;line-height:1.5;margin:1rem 0;color:#e2e8f0}
+    code{font-family:'SF Mono','Consolas',monospace}
+    ul,ol{margin:0.75rem 0 1rem 1.5rem;color:#ccc}
+    li{margin-bottom:0.5rem;font-size:0.95rem}
+    table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:0.9rem}
+    th,td{padding:0.75rem;border:1px solid var(--border);text-align:left}
+    th{background:var(--card-bg);color:var(--accent);font-weight:600}
+    td{color:#ccc}
+    .cta-box{background:var(--card-bg);border:1px solid var(--accent);border-radius:12px;padding:1.5rem;margin:2rem 0;text-align:center}
+    .cta-box a{display:inline-block;background:var(--accent);color:var(--bg);padding:0.7rem 1.5rem;border-radius:8px;font-weight:700;text-decoration:none;margin-top:0.75rem}
+    .cta-box a:hover{opacity:0.85}
+    footer{text-align:center;padding:2rem 1rem;border-top:1px solid var(--border);color:#555;font-size:0.85rem}
+    footer a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/">TinyCoder</a>
+    <a href="/blog/">Blog</a>
+  </nav>
+  <article>
+    <div class="date">Sep 7, 2026</div>
+    <h1>PWA vs Native App: Which Should Freelance Devs Build for Clients?</h1>
+
+    <p>Clients ask for "an app." What they usually mean is: "I want something on people's phones." The question is — do they need a native app, or will a Progressive Web App do the job?</p>
+
+    <p>For most freelance projects, the answer is PWA. Here's why.</p>
+
+    <h2>The Cost Comparison</h2>
+    <table>
+      <tr><th>Factor</th><th>Native App</th><th>PWA</th></tr>
+      <tr><td>Development cost</td><td>$15,000–$50,000+</td><td>$0–$5,000</td></tr>
+      <tr><td>Timeline</td><td>3–6 months</td><td>1–4 weeks</td></tr>
+      <tr><td>Maintenance</td><td>Continuous (OS updates)</td><td>Minimal</td></tr>
+      <tr><td>Distribution</td><td>App Store approval</td><td>Direct URL</td></tr>
+      <tr><td>Offline support</td><td>Full</td><td>Full (with service worker)</td></tr>
+      <tr><td>Push notifications</td><td>iOS + Android</td><td>Android only (for now)</td></tr>
+      <tr><td>Home screen install</td><td>App Store</td><td>Browser prompt</td></tr>
+    </table>
+
+    <h2>When to Build a Native App</h2>
+    <ul>
+      <li><strong>Hardware access</strong> — Bluetooth, NFC, ARKit, advanced camera features</li>
+      <li><strong>Background processing</strong> — continuous GPS tracking, audio playback in background</li>
+      <li><strong>App Store presence</strong> — client specifically wants to be in the App Store / Play Store</li>
+      <li><strong>Complex animations</strong> — games, 3D rendering, heavy GPU usage</li>
+    </ul>
+
+    <h2>When a PWA is Enough</h2>
+    <ul>
+      <li><strong>Content sites</strong> — blogs, portfolios, documentation</li>
+      <li><strong>E-commerce</strong> — product catalogs, checkout flows</li>
+      <li><strong>Tools</strong> — calculators, formatters, converters</li>
+      <li><strong>Dashboards</strong> — admin panels, analytics views</li>
+      <li><strong>Business apps</strong> — CRM, invoicing, inventory</li>
+    </ul>
+
+    <h2>The Freelancer's Playbook</h2>
+    <p>Here's how to pitch PWAs to clients:</p>
+
+    <p><strong>1. Start with the problem, not the technology.</strong><br>
+    Don't say "let's build a PWA." Say: "Your customers want to access your catalog offline. I can build that in 2 weeks for $3,000."</p>
+
+    <p><strong>2. Show the math.</strong><br>
+    A native app costs $20k+ and takes 3 months. A PWA costs $3k and takes 2 weeks. Both solve the same problem for 90% of use cases.</p>
+
+    <p><strong>3. Demo the install.</strong><br>
+    Open a PWA on your phone, tap "Add to Home Screen," and show the client the icon. That's the moment they get it.</p>
+
+    <p><strong>4. Mention the upgrade path.</strong><br>
+    "We can start with a PWA. If you need native features later, we can wrap it in Capacitor or build a native shell."</p>
+
+    <h2>Real Example: Client Billing App</h2>
+    <p>A client wants an app where contractors log hours and generate invoices. Do they need native?</p>
+    <ul>
+      <li>No hardware access needed</li>
+      <li>No background processing</li>
+      <li>Works offline (service worker caches the app)</li>
+      <li>Needs to be installable (home screen icon)</li>
+    </ul>
+    <p>PWA is perfect. Build it in a week, charge $2,500, deploy to Vercel. Total cost to client: $2,500 + $0/month hosting.</p>
+
+    <div class="cta-box">
+      <p><strong>Want a head start?</strong></p>
+      <p>TinyCoder is a PWA starter template with 5 offline dev tools. Config-driven — change the app name and colors in one file.</p>
+      <a href="https://tinycoderstudio.gumroad.com/l/gyhehh?utm_source=blog&utm_medium=pwa_vs_native&utm_campaign=lead_gen_2026" target="_blank" rel="noopener">Get TinyCoder — $29</a>
+    </div>
+
+    <h2>The Bottom Line</h2>
+    <p>Native apps are for specific use cases — hardware access, App Store distribution, complex performance. Everything else? PWA.</p>
+    <p>As a freelancer, PWAs mean faster delivery, lower costs, and happier clients. You ship in weeks, not months. And you still charge premium rates because you're solving a real problem.</p>
+  </article>
+  <footer>
+    <p><a href="/">TinyCoder</a> — 5 offline dev tools. Free to use.</p>
+  </footer>
+</body>
+</html>

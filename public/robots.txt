@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://toolbox-lilac-three.vercel.app/sitemap.xml

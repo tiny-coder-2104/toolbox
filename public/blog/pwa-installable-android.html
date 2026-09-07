@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Make Any Web App Installable on Android in 5 Minutes | TinyCoder</title>
+  <meta name="description" content="Add a manifest.json, register a service worker, and your web app installs to the home screen like a native app. No Play Store required.">
+  <meta property="og:title" content="How to Make Any Web App Installable on Android in 5 Minutes">
+  <meta property="og:description" content="Add a manifest.json, register a service worker, and your web app installs to the home screen like a native app.">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    :root{--bg:#0F172A;--card-bg:#1E293B;--text:#E2E8F0;--accent:#06B6D4;--border:#334155}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.7}
+    .nav{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.5rem}
+    .nav a{color:var(--accent);text-decoration:none;font-weight:600;font-size:0.95rem}
+    .nav a:hover{text-decoration:underline}
+    article{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem}
+    .date{font-size:0.8rem;color:#64748b;margin-bottom:0.5rem}
+    h1{font-size:1.8rem;color:var(--accent);margin-bottom:1rem;line-height:1.3}
+    h2{font-size:1.3rem;color:var(--accent);margin:2rem 0 0.75rem}
+    p{color:#ccc;margin-bottom:1rem;font-size:0.95rem}
+    a{color:var(--accent)}
+    pre{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;font-size:0.85rem;line-height:1.5;margin:1rem 0;color:#e2e8f0}
+    code{font-family:'SF Mono','Consolas',monospace}
+    ul,ol{margin:0.75rem 0 1rem 1.5rem;color:#ccc}
+    li{margin-bottom:0.5rem;font-size:0.95rem}
+    .cta-box{background:var(--card-bg);border:1px solid var(--accent);border-radius:12px;padding:1.5rem;margin:2rem 0;text-align:center}
+    .cta-box a{display:inline-block;background:var(--accent);color:var(--bg);padding:0.7rem 1.5rem;border-radius:8px;font-weight:700;text-decoration:none;margin-top:0.75rem}
+    .cta-box a:hover{opacity:0.85}
+    footer{text-align:center;padding:2rem 1rem;border-top:1px solid var(--border);color:#555;font-size:0.85rem}
+    footer a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/">TinyCoder</a>
+    <a href="/blog/">Blog</a>
+  </nav>
+  <article>
+    <div class="date">Sep 7, 2026</div>
+    <h1>How to Make Any Web App Installable on Android in 5 Minutes</h1>
+
+    <p>Your web app already works on mobile. But users have to open a browser, type the URL, and hope they remember it next time. What if they could install it like a native app — with an icon on their home screen, no Play Store required?</p>
+
+    <p>That's a Progressive Web App (PWA). And it takes about 5 minutes to set up.</p>
+
+    <h2>What You Need</h2>
+    <ul>
+      <li>A website served over HTTPS (Vercel, Netlify, any static host)</li>
+      <li>A <code>manifest.json</code> file</li>
+      <li>A service worker (10 lines of JavaScript)</li>
+    </ul>
+
+    <h2>Step 1: Create manifest.json</h2>
+    <p>Create a file called <code>manifest.json</code> in your root directory:</p>
+    <pre><code>{
+  "name": "Your App Name",
+  "short_name": "App",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#06B6D4",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}</code></pre>
+
+    <p>The key fields:</p>
+    <ul>
+      <li><code>display: standalone</code> — removes the browser UI, makes it feel like a native app</li>
+      <li><code>start_url</code> — where the app opens when launched from the home screen</li>
+      <li><code>icons</code> — at least 192x192 and 512x512 PNG files</li>
+    </ul>
+
+    <h2>Step 2: Link the Manifest</h2>
+    <p>Add this to your <code>&lt;head&gt;</code>:</p>
+    <pre><code>&lt;link rel="manifest" href="/manifest.json"&gt;
+&lt;meta name="theme-color" content="#06B6D4"&gt;
+&lt;link rel="apple-touch-icon" href="/icon-192.png"&gt;</code></pre>
+
+    <h2>Step 3: Register a Service Worker</h2>
+    <p>Create <code>sw.js</code> in your root directory:</p>
+    <pre><code>const CACHE = 'v1';
+const ASSETS = ['/', '/index.html'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+});
+
+self.addEventListener('fetch', e => {
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+});</code></pre>
+
+    <p>Then register it in your main JavaScript:</p>
+    <pre><code>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}</code></pre>
+
+    <h2>Step 4: Test It</h2>
+    <ol>
+      <li>Deploy to a host with HTTPS</li>
+      <li>Open Chrome on Android</li>
+      <li>Navigate to your site</li>
+      <li>Tap the three-dot menu → "Add to Home Screen"</li>
+      <li>Confirm the install prompt</li>
+    </ol>
+
+    <p>That's it. Your web app is now installable.</p>
+
+    <h2>Why This Matters for Freelancers</h2>
+    <p>Clients love the idea of a native app but hate the price tag ($20k+ for iOS + Android). A PWA gives them:</p>
+    <ul>
+      <li>Home screen icon</li>
+      <li>Offline functionality</li>
+      <li>Push notifications (on Android)</li>
+      <li>No Play Store fees or approval process</li>
+    </ul>
+
+    <p>You can build and deploy a PWA in an afternoon. That's a $3,000 project for a $29 template.</p>
+
+    <div class="cta-box">
+      <p><strong>Want a ready-to-deploy PWA template?</strong></p>
+      <p>TinyCoder includes 5 offline dev tools, manifest.json, service worker, and one-file config. Deploy to Vercel in minutes.</p>
+      <a href="https://tinycoderstudio.gumroad.com/l/gyhehh?utm_source=blog&utm_medium=pwa_tutorial&utm_campaign=lead_gen_2026" target="_blank" rel="noopener">Get TinyCoder — $29</a>
+    </div>
+
+    <h2>FAQ</h2>
+
+    <p><strong>Does this work on iOS?</strong><br>
+    Yes, but iOS has limitations. The install prompt isn't as prominent — users tap Share → Add to Home Screen. Service worker support is limited but improving.</p>
+
+    <p><strong>Do I need a service worker?</strong><br>
+    For installability, yes. Chrome requires a service worker with a <code>fetch</code> handler before showing the install prompt.</p>
+
+    <p><strong>Can I send push notifications?</strong><br>
+    On Android, yes. iOS support is limited. Use a library like <a href="https://web-push-book.com/">web-push</a> if you need this.</p>
+  </article>
+  <footer>
+    <p><a href="/">TinyCoder</a> — 5 offline dev tools. Free to use.</p>
+  </footer>
+</body>
+</html>

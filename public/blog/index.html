@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog | TinyCoder</title>
+  <meta name="description" content="Tutorials, tips, and tools for freelance web developers building PWAs and offline web apps.">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    :root{--bg:#0F172A;--card-bg:#1E293B;--text:#E2E8F0;--accent:#06B6D4;--border:#334155}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .nav{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.5rem}
+    .nav a{color:var(--accent);text-decoration:none;font-weight:600;font-size:0.95rem}
+    .nav a:hover{text-decoration:underline}
+    .hero{text-align:center;padding:3rem 1rem 2rem}
+    .hero h1{font-size:2rem;color:var(--accent);margin-bottom:0.5rem}
+    .hero p{color:#888;font-size:1rem}
+    .posts{max-width:720px;margin:0 auto;padding:1rem 1rem 3rem}
+    .post{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;text-decoration:none;color:var(--text);display:block;transition:border-color 0.2s,transform 0.1s}
+    .post:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .post-date{font-size:0.75rem;color:#64748b;margin-bottom:0.5rem}
+    .post h2{font-size:1.2rem;color:var(--accent);margin-bottom:0.5rem}
+    .post p{color:#888;font-size:0.9rem;line-height:1.5}
+    footer{text-align:center;padding:2rem 1rem;border-top:1px solid var(--border);color:#555;font-size:0.85rem}
+    footer a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/">TinyCoder</a>
+    <a href="/blog/">Blog</a>
+  </nav>
+  <div class="hero">
+    <h1>TinyCoder Blog</h1>
+    <p>Tutorials, tips, and tools for freelance web developers</p>
+  </div>
+  <div class="posts">
+    <a class="post" href="/blog/pwa-installable-android.html">
+      <div class="post-date">Sep 7, 2026</div>
+      <h2>How to Make Any Web App Installable on Android in 5 Minutes</h2>
+      <p>Add a manifest.json, register a service worker, and your web app installs to the home screen like a native app. No Play Store required.</p>
+    </a>
+    <a class="post" href="/blog/pwa-vs-native-app.html">
+      <div class="post-date">Sep 7, 2026</div>
+      <h2>PWA vs Native App: Which Should Freelance Devs Build for Clients?</h2>
+      <p>Native costs $20k+ and takes months. PWAs cost $0 to deploy and work offline. Here's when each makes sense.</p>
+    </a>
+    <a class="post" href="/blog/json-formatter-offline.html">
+      <div class="post-date">Sep 7, 2026</div>
+      <h2>JSON Formatter Online: Why Offline Tools Beat Browser Extensions</h2>
+      <p>Browser extensions track you. Offline JSON formatters work without internet and leave no trace. Here's how to build one.</p>
+    </a>
+    <a class="post" href="/blog/vanilla-js-pwa-tutorial.html">
+      <div class="post-date">Sep 7, 2026</div>
+      <h2>Vanilla JavaScript PWA Tutorial: No React, No Next.js, Just JS</h2>
+      <p>Build a Progressive Web App with zero dependencies. Plain HTML, CSS, and JavaScript — deploy to Vercel in under 10 minutes.</p>
+    </a>
+  </div>
+  <footer>
+    <p><a href="/">TinyCoder</a> — 5 offline dev tools. Free to use.</p>
+  </footer>
+</body>
+</html>

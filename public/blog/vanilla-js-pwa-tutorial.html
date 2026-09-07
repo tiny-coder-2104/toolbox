@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vanilla JavaScript PWA Tutorial: No React, No Next.js, Just JS | TinyCoder</title>
+  <meta name="description" content="Build a Progressive Web App with zero dependencies. Plain HTML, CSS, and JavaScript — deploy to Vercel in under 10 minutes.">
+  <meta property="og:title" content="Vanilla JavaScript PWA Tutorial: No React, No Next.js, Just JS">
+  <meta property="og:description" content="Build a Progressive Web App with zero dependencies. Plain HTML, CSS, and JavaScript.">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    :root{--bg:#0F172A;--card-bg:#1E293B;--text:#E2E8F0;--accent:#06B6D4;--border:#334155}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.7}
+    .nav{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.5rem}
+    .nav a{color:var(--accent);text-decoration:none;font-weight:600;font-size:0.95rem}
+    .nav a:hover{text-decoration:underline}
+    article{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem}
+    .date{font-size:0.8rem;color:#64748b;margin-bottom:0.5rem}
+    h1{font-size:1.8rem;color:var(--accent);margin-bottom:1rem;line-height:1.3}
+    h2{font-size:1.3rem;color:var(--accent);margin:2rem 0 0.75rem}
+    p{color:#ccc;margin-bottom:1rem;font-size:0.95rem}
+    a{color:var(--accent)}
+    pre{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;font-size:0.85rem;line-height:1.5;margin:1rem 0;color:#e2e8f0}
+    code{font-family:'SF Mono','Consolas',monospace}
+    ul,ol{margin:0.75rem 0 1rem 1.5rem;color:#ccc}
+    li{margin-bottom:0.5rem;font-size:0.95rem}
+    .cta-box{background:var(--card-bg);border:1px solid var(--accent);border-radius:12px;padding:1.5rem;margin:2rem 0;text-align:center}
+    .cta-box a{display:inline-block;background:var(--accent);color:var(--bg);padding:0.7rem 1.5rem;border-radius:8px;font-weight:700;text-decoration:none;margin-top:0.75rem}
+    .cta-box a:hover{opacity:0.85}
+    footer{text-align:center;padding:2rem 1rem;border-top:1px solid var(--border);color:#555;font-size:0.85rem}
+    footer a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/">TinyCoder</a>
+    <a href="/blog/">Blog</a>
+  </nav>
+  <article>
+    <div class="date">Sep 7, 2026</div>
+    <h1>Vanilla JavaScript PWA Tutorial: No React, No Next.js, Just JS</h1>
+
+    <p>Every PWA tutorial starts with "install React, then Next.js, then configure Webpack..." By the time you're done, you have 200MB of node_modules for a to-do app.</p>
+
+    <p>This tutorial uses zero dependencies. Just HTML, CSS, and JavaScript. You'll have a working PWA in 10 minutes.</p>
+
+    <h2>What We're Building</h2>
+    <p>A simple web app that:</p>
+    <ul>
+      <li>Works offline</li>
+      <li>Installs to the home screen</li>
+      <li>Has a service worker for caching</li>
+      <li>Runs on any static host (Vercel, Netlify, GitHub Pages)</li>
+    </ul>
+
+    <h2>Step 1: The HTML</h2>
+    <p>Create <code>index.html</code>:</p>
+    <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;My PWA&lt;/title&gt;
+  &lt;link rel="manifest" href="/manifest.json"&gt;
+  &lt;meta name="theme-color" content="#0F172A"&gt;
+  &lt;link rel="apple-touch-icon" href="/icon-192.png"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello, PWA!&lt;/h1&gt;
+  &lt;p&gt;This app works offline.&lt;/p&gt;
+  &lt;script src="/app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <h2>Step 2: The Manifest</h2>
+    <p>Create <code>manifest.json</code>:</p>
+    <pre><code>{
+  "name": "My PWA",
+  "short_name": "PWA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#06B6D4",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}</code></pre>
+
+    <h2>Step 3: The Service Worker</h2>
+    <p>Create <code>sw.js</code>:</p>
+    <pre><code>const CACHE = 'my-pwa-v1';
+const ASSETS = ['/', '/index.html', '/app.js', '/style.css'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+});
+
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
+  );
+});</code></pre>
+
+    <p>The service worker does three things:</p>
+    <ul>
+      <li><strong>Install</strong> — caches all app files</li>
+      <li><strong>Activate</strong> — deletes old caches</li>
+      <li><strong>Fetch</strong> — serves from cache, falls back to network</li>
+    </ul>
+
+    <h2>Step 4: Register the Service Worker</h2>
+    <p>Create <code>app.js</code>:</p>
+    <pre><code>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('SW registered:', reg.scope))
+    .catch(err => console.log('SW failed:', err));
+}</code></pre>
+
+    <h2>Step 5: Deploy</h2>
+    <p>If you're using Vercel:</p>
+    <pre><code>npm i -g vercel
+vercel deploy --prod</code></pre>
+
+    <p>That's it. Your PWA is live.</p>
+
+    <h2>Testing Offline</h2>
+    <ol>
+      <li>Open Chrome DevTools → Application → Service Workers</li>
+      <li>Check "Offline" in the Network tab</li>
+      <li>Refresh the page — it should still load</li>
+      <li>On Android: three-dot menu → "Add to Home Screen"</li>
+    </ol>
+
+    <h2>Why Vanilla JS?</h2>
+    <ul>
+      <li><strong>Zero dependencies</strong> — nothing to update, nothing to break</li>
+      <li><strong>Fast</strong> — no build step, no transpilation</li>
+      <li><strong>Small</strong> — the entire app is under 5KB</li>
+      <li><strong>Understandable</strong> — you can read every line</li>
+    </ul>
+
+    <p>React and Next.js are great for complex apps. But for a simple PWA? Vanilla JS is enough.</p>
+
+    <div class="cta-box">
+      <p><strong>Want a head start?</strong></p>
+      <p>TinyCoder is a vanilla JS PWA with 5 offline dev tools. Config-driven, deployable in minutes.</p>
+      <a href="https://tinycoderstudio.gumroad.com/l/gyhehh?utm_source=blog&utm_medium=vanilla_pwa&utm_campaign=lead_gen_2026" target="_blank" rel="noopener">Get TinyCoder — $29</a>
+    </div>
+
+    <h2>FAQ</h2>
+
+    <p><strong>Do I need HTTPS?</strong><br>
+    Yes. Service workers only work over HTTPS. Vercel, Netlify, and GitHub Pages all provide this by default.</p>
+
+    <p><strong>Does this work on iOS?</strong><br>
+    Yes. Add the <code>apple-touch-icon</code> meta tag and users can install via Share → Add to Home Screen.</p>
+
+    <p><strong>Can I use this with a backend?</strong><br>
+    The service worker caches static assets. API calls still need a network connection unless you cache them explicitly.</p>
+  </article>
+  <footer>
+    <p><a href="/">TinyCoder</a> — 5 offline dev tools. Free to use.</p>
+  </footer>
+</body>
+</html>
