@@ -1,6 +1,30 @@
 import './style.css'
 
-// ponytail: lazy lookup — top-level getElementById is null when module runs before DOM parsed
+// UTM Convention:
+// utm_source = platform (reddit, devto, github, twitter)
+// utm_medium = content type (free_tool, post, comment, bio)
+// utm_campaign = initiative (lead_gen_2026, seo_content, community)
+// Example: ?utm_source=reddit&utm_medium=free_tool&utm_campaign=lead_gen_2026
+
+const GUMROAD_URL = 'https://tinycoderstudio.gumroad.com/l/gyhehh'
+const GUMROAD_UTM = '?utm_source=toolbox&utm_medium=free_tool&utm_campaign=lead_gen_2026'
+const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'
+
+function gtag(event, params) {
+  window.dataLayer = window.dataLayer || []
+  window.dataLayer.push({ event, ...params })
+}
+
+function gumroadUrl() { return GUMROAD_URL + GUMROAD_UTM }
+
+function trackToolUse(toolId) {
+  gtag('tool_use', { tool: toolId, tool_category: 'dev_tool' })
+}
+
+function trackChatbotOpen() { gtag('chatbot_open') }
+function trackChatbotMessage() { gtag('chatbot_message') }
+function trackGumroadClick() { gtag('gumroad_click', { method: 'cta' }) }
+
 const getApp = () => document.getElementById('app')
 
 const TOOLS = {
@@ -36,6 +60,12 @@ function homeView() {
     <header>
       <h1>TinyCoder</h1>
       <p>Web Toolbox — developer utilities in your browser</p>
+      <span class="social-proof">100+ developers use TinyCoder</span>
+      <div class="trust-badges">
+        <span>✓ Works Offline</span>
+        <span>✓ No Backend Required</span>
+        <span>✓ 30-Day Refund</span>
+      </div>
     </header>
     <main>
       <section class="tools">
@@ -51,7 +81,7 @@ function homeView() {
     <footer>
       <p>Privacy-first. Client-side only. Zero backend.</p>
     </footer>
-  `
+    <div id="tool-cta-slot"></div>
 }
 
 function toolView(id) {
@@ -66,6 +96,9 @@ function toolView(id) {
     <main class="tool-main" id="tool-main">
       ${toolBody(id)}
     </main>
+    <div class="tool-cta" data-tool="${id}">
+      <p>Need the full 5-tool PWA starter? <a href="${gumroadUrl()}" target="_blank" rel="noopener" data-gumroad>Get it for $29</a></p>
+    </div>
     <footer>
       <p>Privacy-first. Client-side only. Zero backend.</p>
     </footer>
@@ -192,11 +225,32 @@ function render() {
   if (backBtn) backBtn.addEventListener('click', () => { location.hash = '' })
 
   document.querySelectorAll('.tool-card').forEach(card => {
-    card.addEventListener('click', () => { location.hash = '/' + card.dataset.tool })
+    card.addEventListener('click', () => {
+      trackToolUse(card.dataset.tool)
+      location.hash = '/' + card.dataset.tool
+    })
+  })
+
+  document.querySelectorAll('[data-gumroad]').forEach(a => {
+    a.addEventListener('click', trackGumroadClick)
   })
 
   const main = document.getElementById('tool-main')
   if (main) wireTool(id, main)
+
+  const toolCtaSlot = document.getElementById('tool-cta-slot')
+  if (toolCtaSlot && id && TOOLS[id]) {
+    const count = (parseInt(localStorage.getItem('tc_tool_uses') || '0')) + 1
+    localStorage.setItem('tc_tool_uses', count)
+    if (count >= 3 && !localStorage.getItem('tc_cta_dismissed')) {
+      toolCtaSlot.innerHTML = `<div class="cta-banner"><p>Used a tool? <a href="${gumroadUrl()}" target="_blank" rel="noopener" data-gumroad>Get the full PWA template for $29</a></p><button class="cta-dismiss">✕</button></div>`
+      toolCtaSlot.querySelector('.cta-dismiss').addEventListener('click', () => {
+        localStorage.setItem('tc_cta_dismissed', '1')
+        toolCtaSlot.innerHTML = ''
+      })
+      toolCtaSlot.querySelector('[data-gumroad]').addEventListener('click', trackGumroadClick)
+    }
+  }
 }
 
 function wireTool(id, main) {
@@ -205,6 +259,7 @@ function wireTool(id, main) {
     const outEl = main.querySelector('#json-out')
     main.querySelectorAll('button[data-act]').forEach(btn => {
       btn.addEventListener('click', () => {
+        trackToolUse(id)
         const raw = inEl.value
         let parsed
         try { parsed = JSON.parse(raw) } catch (e) {
@@ -223,6 +278,7 @@ function wireTool(id, main) {
     const outEl = main.querySelector('#b64-out')
     main.querySelectorAll('button[data-act]').forEach(btn => {
       btn.addEventListener('click', () => {
+        trackToolUse(id)
         const v = inEl.value
         if (!v) { outEl.textContent = 'Enter some input first'; return }
         try {
@@ -270,6 +326,7 @@ function wireTool(id, main) {
     const outEl = main.querySelector('#url-out')
     main.querySelectorAll('button[data-act]').forEach(btn => {
       btn.addEventListener('click', () => {
+        trackToolUse(id)
         const act = btn.dataset.act
         const v = inEl.value
         try {
@@ -288,6 +345,7 @@ function wireTool(id, main) {
     const outEl = main.querySelector('#uuid-out')
     main.querySelectorAll('button[data-act]').forEach(btn => {
       btn.addEventListener('click', () => {
+        trackToolUse(id)
         const act = btn.dataset.act
         let guids
         if (act === 'v4') guids = [uuidv4()]
@@ -324,6 +382,77 @@ if ('serviceWorker' in navigator) {
     })
   })
 }
+
+// Exit-Intent Popup
+(function() {
+  let shown = false
+  document.addEventListener('mousemove', e => {
+    if (shown || sessionStorage.getItem('tc_exit_shown')) return
+    if (e.clientY < 5) {
+      shown = true
+      sessionStorage.setItem('tc_exit_shown', '1')
+      const overlay = document.createElement('div')
+      overlay.id = 'exit-modal'
+      overlay.innerHTML = `
+        <div class="exit-card">
+          <button class="exit-close" id="exit-close">✕</button>
+          <h2>Ship client PWAs in an afternoon</h2>
+          <p>Free JSON Formatter included. Full 5-tool template → $29</p>
+          <a href="${gumroadUrl()}" target="_blank" rel="noopener" class="exit-cta" data-gumroad>Get the Template</a>
+        </div>
+      `
+      document.body.appendChild(overlay)
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay || e.target.id === 'exit-close' || e.target.closest('.exit-close')) {
+          overlay.remove()
+        }
+      })
+      document.addEventListener('keydown', function handler(e) {
+        if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', handler) }
+      })
+      overlay.querySelector('[data-gumroad]').addEventListener('click', trackGumroadClick)
+    }
+  })
+})()
+
+// Sticky CTA Bar
+(function() {
+  if (localStorage.getItem('tc_sticky_dismissed')) return
+  const bar = document.createElement('div')
+  bar.id = 'sticky-cta'
+  bar.innerHTML = `
+    <span>🛠️ Free PWA Tools → Full Template $29</span>
+    <a href="${gumroadUrl()}" target="_blank" rel="noopener" data-gumroad>Get It</a>
+    <button id="sticky-dismiss">✕</button>
+  `
+  document.body.appendChild(bar)
+  bar.querySelector('#sticky-dismiss').addEventListener('click', () => {
+    localStorage.setItem('tc_sticky_dismissed', '1')
+    bar.remove()
+  })
+  bar.querySelector('[data-gumroad]').addEventListener('click', trackGumroadClick)
+})()
+
+// Chatbot event tracking
+(function() {
+  let chatOpen = false
+  const obs = new MutationObserver(mutations => {
+    mutations.forEach(m => {
+      m.addedNodes.forEach(n => {
+        if (n.nodeType === 1) {
+          if (!chatOpen && n.textContent && n.textContent.includes('chat')) {
+            chatOpen = true
+            trackChatbotOpen()
+          }
+          if (n.textContent && n.textContent.trim().length > 0) {
+            trackChatbotMessage()
+          }
+        }
+      })
+    })
+  })
+  obs.observe(document.body, { childList: true, subtree: true })
+})()
 
 // Lead capture - intercept chat and POST to Make.com webhook
 (function() {
