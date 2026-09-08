@@ -18,7 +18,7 @@ No server costs. No database. No vendor lock-in. Just vanilla JS and Vite, deplo
 
 ## What You Get
 
-| Feature | Basic ($29) | Pro ($49) | Agency License ($79) |
+| Feature | Basic ($29) | Pro ($49) | Agency ($79) |
 |---|---|---|---|
 | PWA template source + built output | Yes | Yes | Yes |
 | README (5-minute setup) | Yes | Yes | Yes |
@@ -34,7 +34,7 @@ No server costs. No database. No vendor lock-in. Just vanilla JS and Vite, deplo
 ## Why This Template
 
 - **Offline by default.** PWA with service worker — works without internet, installs on any device. No extra configuration.
-- **Zero backend.** $0 hosting on Vercel. No databases to manage, no APIs to maintain, no server-side security surface to manage.
+- **Zero backend.** $0 hosting on Vercel. No databases to manage, no APIs to maintain. No server-side data to protect — pasted tool content never leaves the buyer's browser (the site's optional chat lead-capture is separate; see privacy policy).
 - **White-label ready.** Swap the logo, change the colors, rename it. The customization guide walks you through it.
 - **5 working tools, not a skeleton.** JSON formatter, Base64 encoder, Regex tester, URL encoder, UUID generator — all functional out of the box. Replace them or keep them.
 - **Instant deploy.** Push to GitHub, connect to Vercel, done. The deploy guide covers every step.
@@ -94,5 +94,5 @@ PWA template source, built output, README, Vercel deploy guide. For devs who nee
 **Pro ($49)**
 Everything in Basic plus AI Chatbot Prompt Kit (5 industry templates for e-commerce, healthcare, services, booking, consulting) and Customization Guide. For devs who want to position themselves as the AI-forward choice for client projects.
 
-**Agency License ($79)**
+**Agency ($79)**
 Everything in Pro plus Commercial License, Client Branding Guide (white-label steps), and Sales Materials (pitch deck, client FAQ, pricing sheet). For agencies and freelancers who want to sell PWAs as a product under their own brand.

@@ -117,9 +117,9 @@ Yes. The Agency License permits client use. You cannot resell the template itsel
 No free trial — the paid template is a one-time purchase. Try the [Free JSON Formatter](https://tinycoderstudio.gumroad.com/l/pwa-json-formatter) instead: same offline tech, email required for the free download.
 
 **What support is included?**
-- Basic: Email support (48hr response)
-- Pro: Priority email support (24hr response)
-- Agency: Priority email support (24hr response) + white-label guidance
+- Basic: Email support (48hr response, best-effort)
+- Pro: Priority email support (24hr response, best-effort)
+- Agency: Priority email support (24hr response, best-effort) + white-label guidance
 
 **Refund policy?**
 30-day money-back guarantee. No questions asked.

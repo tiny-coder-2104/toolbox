@@ -79,7 +79,7 @@ function homeView() {
       </section>
     </main>
     <footer>
-      <p>Tools run 100% in your browser. Chat assistant is automated — contact details you share may be used for follow-up.</p>
+      <p>Tools run 100% in your browser. Chat assistant is automated — contact details you share may be used for follow-up. <a href="/privacy.html">Privacy Policy</a>.</p>
     </footer>
     <div id="tool-cta-slot"></div>
 }
@@ -100,7 +100,7 @@ function toolView(id) {
       <p>Need the full 5-tool PWA starter? <a href="${gumroadUrl()}" target="_blank" rel="noopener" data-gumroad>Get it for $29</a></p>
     </div>
     <footer>
-      <p>Tools run 100% in your browser. Chat assistant is automated — contact details you share may be used for follow-up.</p>
+      <p>Tools run 100% in your browser. Chat assistant is automated — contact details you share may be used for follow-up. <a href="/privacy.html">Privacy Policy</a>.</p>
     </footer>
   `
 }
@@ -455,11 +455,16 @@ if ('serviceWorker' in navigator) {
 })()
 
 // Lead capture - intercept chat and POST to Make.com webhook
+// TODO: unsubscribe handling — honor opt-out from Gumroad ESP suppression list
+// before every send. Check suppression tab before each batch.
 // ponytail: Chatbase renders in a cross-origin iframe, so page-side observers
 // can only see chat text mirrored into the DOM. Email-gated + session-deduped
 // to keep noise and PII over-collection near zero. Rotate WEBHOOK in Make.com
 // dashboard if spam ever arrives (new URL -> rebuild -> verify -> revoke old).
+// Consent gate (R11): lead capture only runs after explicit consent signal.
+// Set localStorage.tc_consent='1' to enable. Absent = no capture.
 (function() {
+  if (!localStorage.getItem('tc_consent')) return
   const WEBHOOK = 'https://hook.us2.make.com/wgwq68459cpjed3h7is6onuf026q23cx'
   const seen = new Set()
   try {
@@ -494,6 +499,11 @@ if ('serviceWorker' in navigator) {
     if (!text || text.length < 3 || text.length > 500) return
     const email = extractEmail(text)
     if (!email) return // email-gated: a lead without a reachable address is noise + PII liability
+    // Consent gate (R11): page-side observers can't see chat context, so a bare
+    // email-like string (order IDs, code samples, pasted JSON) must NOT count as
+    // a lead. Only store when the same message carries an explicit follow-up
+    // request. Matches privacy.html ("email address AND a follow-up request").
+    if (!/(contact me|follow.?up|send (me|over|it)|email me|subscribe|sign.?me.?up|get in touch|reach out|yes|details|updates|newsletter)/i.test(text)) return
     if (seen.has(email)) return
     const name = extractName(text)
     const cm = text.match(/(?:company|org|organization|business|firm|from)\s+(?:is\s+)?([A-Z][\w\s&.]{1,60})/i)
