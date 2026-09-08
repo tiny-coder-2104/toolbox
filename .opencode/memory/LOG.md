@@ -167,3 +167,27 @@
 - **CONSULTING.md** (3,404 words): Discovery calls, needs assessment, proposal follow-up, objection handling, no guaranteed results language
 - All files have: System Prompt (ready-to-paste), Conversation Flows (5-7 each), Industry-Specific Guidelines, FAQ Responses (5+ each), Escalation Triggers
 - ⚠️ STOPPED: User must review prompt quality and industry accuracy before proceeding to README/packaging/Gumroad upload
+
+## Session 12 — 2026-09-08
+**Action**: Reviewer blockers R1-R6, R9, R11, R15, R16 implemented by dev-worker
+- R1: email-1-thank-you.md — removed free-trial language, replaced with free JSON Formatter magnet pointer
+- R2: email-2-case-study.md — removed fabricated reviewer quotes, replaced with verifiable-fact-only social proof
+- R3: email-4-check-in.md — rewritten from check-in reminder to paid upsell (no trial language)
+- R4/R5: Created public/privacy.html — GDPR Art13 covering GA4 (G-VF1WRGBKM5), Clarity (yeg3p999lp), Make.com webhook, Google Sheets, Chatbase; includes controller info, purposes, opt-out, suppression-list note
+- R6: gumroad-listing-pwa-starter.md:37 — "No backend attack surface" clarified
+- R9: All email templates — replaced placeholder with TODO + suppression-list note + privacy link
+- R11: src/main.js:463-517 — added consent gate (`if (!localStorage.getItem('tc_consent')) return`) before lead capture; preserved #tool-main guard at line 513
+- R15: README.md — added "best-effort" qualifier to all support tier descriptions
+- R16: README.md + gumroad-listing-pwa-starter.md — unified tier names to Basic/Pro/Agency
+- Blog footers: Added /privacy.html link to all 5 blog HTML files
+- src/main.js:82,103 — added privacy policy link to footer disclosures
+- Verified: zero occurrences of trial language, fabricated names, broken unsubscribe placeholder, "No backend attack surface" misstatement, or incorrect tier names
+- Build has pre-existing unicode error (← in template literal) unrelated to these changes
+- Fixed 7 instances of $19 → $29 in customer-facing docs (devto-friday-article.md, x-thread-thursday.md, x-thread-thursday-condensed.md)
+- Deleted stale `public/chatbase-init.js` (orphaned snippet, not referenced anywhere)
+- Verified: all Gumroad links point to live IDs (gyhehh $29/$49/$79 + pwa-json-formatter $0)
+- Verified: zero `toolbox-tinycoder` stragglers in customer-facing files
+- Verified: all UTMs use standard `utm_source=blog|toolbox, utm_medium=article|free_tool, utm_campaign=lead_gen_2026`
+- Verified: `#tool-main` exclusion preserved in lead-capture code
+- Verified: `public/chatbase_details.md` retained (documentation, not a stale snippet)
+- Committed and pushed to GitHub
