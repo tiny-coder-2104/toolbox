@@ -51,7 +51,7 @@ toolbox-lilac-three.vercel.app
 ---
 
 **Tweet 5/8**
-Packaged TinyCoder as a $19 template on Gumroad.
+Packaged TinyCoder as a $29 template on Gumroad.
 
 Why? Two revenue tracks:
 🎯 Track B (fast cash): Fiverr AI chatbot gigs — $50/$150/$300

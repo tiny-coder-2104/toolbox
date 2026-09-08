@@ -79,7 +79,7 @@ function homeView() {
       </section>
     </main>
     <footer>
-      <p>Privacy-first. Client-side only. Zero backend.</p>
+      <p>Tools run 100% in your browser. Chat assistant is automated — contact details you share may be used for follow-up.</p>
     </footer>
     <div id="tool-cta-slot"></div>
 }
@@ -100,7 +100,7 @@ function toolView(id) {
       <p>Need the full 5-tool PWA starter? <a href="${gumroadUrl()}" target="_blank" rel="noopener" data-gumroad>Get it for $29</a></p>
     </div>
     <footer>
-      <p>Privacy-first. Client-side only. Zero backend.</p>
+      <p>Tools run 100% in your browser. Chat assistant is automated — contact details you share may be used for follow-up.</p>
     </footer>
   `
 }
@@ -455,14 +455,35 @@ if ('serviceWorker' in navigator) {
 })()
 
 // Lead capture - intercept chat and POST to Make.com webhook
+// ponytail: Chatbase renders in a cross-origin iframe, so page-side observers
+// can only see chat text mirrored into the DOM. Email-gated + session-deduped
+// to keep noise and PII over-collection near zero. Rotate WEBHOOK in Make.com
+// dashboard if spam ever arrives (new URL -> rebuild -> verify -> revoke old).
 (function() {
   const WEBHOOK = 'https://hook.us2.make.com/wgwq68459cpjed3h7is6onuf026q23cx'
   const seen = new Set()
-  function extractEmail(t) { const m = t.match(/[\w.+-]+@[\w-]+\.[\w.-]+/); return m ? m[0] : '' }
+  try {
+    (JSON.parse(sessionStorage.getItem('tc_sent') || '[]')).forEach(h => seen.add(h))
+  } catch(e) {}
+  function persist(h) {
+    seen.add(h)
+    try {
+      const a = Array.from(seen).slice(-100)
+      sessionStorage.setItem('tc_sent', JSON.stringify(a))
+    } catch(e) {}
+    if (seen.size > 100) seen.clear()
+  }
+  // Strict email: length-capped, requires TLD of 2+ chars. Returns '' if invalid.
+  function extractEmail(t) {
+    if (!t || t.length > 500) return ''
+    const m = t.match(/[\w.+-]{1,64}@[\w-]{1,63}(\.[\w-]{1,63})*\.[A-Za-z]{2,}/)
+    return m ? m[0].slice(0, 254) : ''
+  }
+  // Names only count when attached to an explicit intro phrase. The old bare
+  // /^([A-Z][a-z]+...)$/ pattern matched ANY capitalized word ("Hello") — removed.
   function extractName(t) {
-    const p = [/(?:my name is|i'm|i am|call me|this is)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i, /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)$/]
-    for (const r of p) { const m = t.match(r); if (m) return m[1] }
-    return ''
+    const m = t.match(/(?:my name is|i'm|i am|call me|this is)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i)
+    return m ? m[1] : ''
   }
   function sendLead(d) {
     const body = JSON.stringify({ name: d.name||'', email: d.email||'', company: d.company||'', message: d.message||'', source: 'chatbase' })
@@ -470,19 +491,24 @@ if ('serviceWorker' in navigator) {
     else fetch(WEBHOOK, {method:'POST', headers:{'Content-Type':'application/json'}, body, mode:'no-cors'})
   }
   function processMsg(text) {
-    if (!text || text.length < 3 || seen.has(text)) return
-    seen.add(text)
-    if (seen.size > 100) seen.clear()
+    if (!text || text.length < 3 || text.length > 500) return
     const email = extractEmail(text)
+    if (!email) return // email-gated: a lead without a reachable address is noise + PII liability
+    if (seen.has(email)) return
     const name = extractName(text)
-    const cm = text.match(/(?:company|org|organization|business|firm|from)\s+(?:is\s+)?([A-Z][\w\s&.]+)/i)
+    const cm = text.match(/(?:company|org|organization|business|firm|from)\s+(?:is\s+)?([A-Z][\w\s&.]{1,60})/i)
     const company = cm ? cm[1].trim() : ''
-    if (email || name || company) sendLead({name, email, company, message: text})
+    persist(email)
+    sendLead({name, email, company, message: text.slice(0, 500)})
   }
   function observeChat() {
     const obs = new MutationObserver(mutations => {
       mutations.forEach(m => m.addedNodes.forEach(n => {
-        if (n.nodeType === 1 && n.textContent) processMsg(n.textContent.trim())
+        if (n.nodeType !== 1 || !n.textContent) return
+        // Never harvest the tool UI itself: pasted JSON/API keys rendered into
+        // #tool-main are user data, not chat. Chat widget DOM lives outside it.
+        if (n.closest && n.closest('#tool-main')) return
+        processMsg(n.textContent.trim())
       }))
     })
     obs.observe(document.body, {childList: true, subtree: true})

@@ -25,7 +25,7 @@ So I picked a different path: **ship two products in parallel** — one for imme
 | Track | Platform | Product | Timeline | Goal |
 |-------|----------|---------|----------|------|
 | **Track B (Fast)** | Fiverr | AI Chatbot Development | Week 1-2 | First $150 order |
-| **Track A (Compound)** | Gumroad | Dev Toolbox Template | Week 2-3 | First $19 sale |
+| **Track A (Compound)** | Gumroad | Dev Toolbox Template | Week 2-3 | First $29 sale |
 
 **Why both?** Freelance pays now but trades time for money. Digital products pay later but scale infinitely. Doing both hedges the risk.
 
@@ -108,12 +108,12 @@ While building the portfolio, I cleaned up my personal dev toolbox and packaged 
 | **Zero deps** | No `npm install` hell, works forever |
 | **PWA ready** | Offline-first, installable |
 | **Vercel deploy** | One-click deploy from GitHub |
-| **MIT license** | Commercial use, modify freely |
+| **License** | Own projects on Basic/Pro; client work needs Agency; template itself never resold |
 | **Real use case** | I use these tools daily |
 
 ### The Listing
 
-**Price:** $19 (₱1,187.88 auto-detected)
+**Price:** $29
 
 **URL:** `tinycoderstudio.gumroad.com/l/gyhehh`
 
@@ -132,7 +132,7 @@ While building the portfolio, I cleaned up my personal dev toolbox and packaged 
 
 | Metric | Track B (Fiverr) | Track A (Gumroad) |
 |--------|------------------|-------------------|
-| **Revenue** | $150 (1 order) | $19 (1 sale) |
+| **Revenue** | $150 (1 order) | $29 (1 sale) |
 | **Time invested** | ~20 hours | ~8 hours |
 | **Hourly equivalent** | $7.50/hr | $2.37/hr |
 | **Ongoing potential** | Linear (more orders = more time) | Exponential (same file, infinite sales) |
@@ -155,7 +155,7 @@ Every "portfolio" project is a working URL. The chatbot portfolio *is* the chatb
 ### 3. Priced Confidently
 - $50 minimum (not $5)
 - $150 standard (not "negotiable")
-- $19 template (not $9)
+- $29 template (not $9)
 **Low price = low quality signal. Fair price = professional signal.**
 
 ### 4. Automated Everything
@@ -180,7 +180,7 @@ Every "portfolio" project is a working URL. The chatbot portfolio *is* the chatb
 
 ### Week 2: Package & List
 1. Take a side project → clean it up → add README + demo
-2. List on Gumroad ($19-49 for templates, $49-149 for SaaS starters)
+2. List on Gumroad ($29-49 for templates, $49-149 for SaaS starters)
 3. Add Gumroad link to GitHub repo + Fiverr profile
 
 ### Week 3: Distribute

@@ -2,7 +2,7 @@
 
 **Ship client PWAs in an afternoon. Offline-capable, installable, zero backend.**
 
-[Live Demo](https://toolbox-tinycoder.vercel.app) | [Buy on Gumroad](https://tinycoderstudio.gumroad.com/l/gyhehh) | [Free JSON Formatter Tool](https://tinycoderstudio.gumroad.com/l/pwa-json-formatter)
+[Live Demo](https://toolbox-lilac-three.vercel.app) | [Buy on Gumroad](https://tinycoderstudio.gumroad.com/l/gyhehh) | [Free JSON Formatter Tool](https://tinycoderstudio.gumroad.com/l/pwa-json-formatter)
 
 ---
 
@@ -19,7 +19,7 @@ A complete PWA template with 5 working dev tools inside. Customize, deploy to Ve
 
 ## Live Demo
 
-**[toolbox-tinycoder.vercel.app](https://toolbox-tinycoder.vercel.app)**
+**[toolbox-lilac-three.vercel.app](https://toolbox-lilac-three.vercel.app)**
 
 Try it. Turn on airplane mode. Refresh. Still works.
 
@@ -91,7 +91,7 @@ npm run preview
 
 ### Free Tool
 
-Grab the **PWA JSON Formatter** standalone — free, works offline, no signup required.
+Grab the **PWA JSON Formatter** standalone — free, works offline, email required for download.
 
 **[Download Free →](https://tinycoderstudio.gumroad.com/l/pwa-json-formatter)**
 
@@ -114,12 +114,12 @@ Yes, for development (Node 16+). Deployment to Vercel requires no local setup if
 Yes. The Agency License permits client use. You cannot resell the template itself, but you can build client projects on top of it.
 
 **Is there a free trial?**
-The Basic plan includes a 14-day free trial. No credit card required.
+No free trial — the paid template is a one-time purchase. Try the [Free JSON Formatter](https://tinycoderstudio.gumroad.com/l/pwa-json-formatter) instead: same offline tech, email required for the free download.
 
 **What support is included?**
 - Basic: Email support (48hr response)
 - Pro: Priority email support (24hr response)
-- Extended: Direct Slack support
+- Agency: Priority email support (24hr response) + white-label guidance
 
 **Refund policy?**
 30-day money-back guarantee. No questions asked.
@@ -128,8 +128,8 @@ The Basic plan includes a 14-day free trial. No credit card required.
 
 ## License
 
-- **Basic/Pro:** Personal and client project use
-- **Agency:** Commercial license for selling finished products
+- **Basic/Pro:** Your own projects only (including your own commercial products built on the template).
+- **Agency:** Everything in Pro, plus client work and selling finished products under your own brand. You may not resell or redistribute the template itself.
 
 See [LICENSE](LICENSE) for details.
 
@@ -137,8 +137,8 @@ See [LICENSE](LICENSE) for details.
 
 ## Contact
 
-- Email: support@tinycoderstudio.com
-- GitHub: [tiny-coder-2104](https://github.com/tiny-coder-2104)
+- GitHub: [tiny-coder-2104](https://github.com/tiny-coder-2104) (issues and questions)
+- Paid buyers: reply via your Gumroad purchase receipt email for support
 
 ---
 

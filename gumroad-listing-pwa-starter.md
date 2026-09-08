@@ -34,7 +34,7 @@ No server costs. No database. No vendor lock-in. Just vanilla JS and Vite, deplo
 ## Why This Template
 
 - **Offline by default.** PWA with service worker — works without internet, installs on any device. No extra configuration.
-- **Zero backend.** $0 hosting on Vercel. No databases to manage, no APIs to maintain, no security surface to worry about.
+- **Zero backend.** $0 hosting on Vercel. No databases to manage, no APIs to maintain, no server-side security surface to manage.
 - **White-label ready.** Swap the logo, change the colors, rename it. The customization guide walks you through it.
 - **5 working tools, not a skeleton.** JSON formatter, Base64 encoder, Regex tester, URL encoder, UUID generator — all functional out of the box. Replace them or keep them.
 - **Instant deploy.** Push to GitHub, connect to Vercel, done. The deploy guide covers every step.
