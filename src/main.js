@@ -82,6 +82,7 @@ function homeView() {
       <p>Tools run 100% in your browser. Chat assistant is automated — contact details you share may be used for follow-up. <a href="/privacy.html">Privacy Policy</a>.</p>
     </footer>
     <div id="tool-cta-slot"></div>
+  `
 }
 
 function toolView(id) {
@@ -89,7 +90,7 @@ function toolView(id) {
   if (!t) return homeView()
   return `
     <header class="tool-header">
-      <button class="back-btn" id="back-btn">← Back</button>
+      <button class="back-btn" id="back-btn">&larr; Back</button>
       <h1>${esc(t.title)}</h1>
       <p>${esc(t.desc)}</p>
     </header>
