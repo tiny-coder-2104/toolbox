@@ -168,7 +168,19 @@
 - All files have: System Prompt (ready-to-paste), Conversation Flows (5-7 each), Industry-Specific Guidelines, FAQ Responses (5+ each), Escalation Triggers
 - ⚠️ STOPPED: User must review prompt quality and industry accuracy before proceeding to README/packaging/Gumroad upload
 
-## Session 12 — 2026-09-08
+## Session 13 — 2026-09-08
+**Action**: Built free-magnet standalone HTML for Gumroad $0+ publishing
+- @dev-worker created `public/free-json-formatter.html` — self-contained ~6KB single-file HTML
+- Features: paste JSON → Format / Minify / Validate with error line+col hint, Copy button, Sample button
+- Footer: "Free sample from TinyCoder Toolbox — full 5-tool PWA starter $29" linking Gumroad URL with UTM params + /privacy.html note
+- No email capture, no fake claims, no trial language, no external deps
+- Copied to `packaging/basic/free-json-formatter.html` (Gumroad $0+ upload candidate)
+- Mirrored to `pseudo_human/tiny_coder/public/` and `pseudo_human/tiny_coder/packaging/basic/`
+- ✅ JS syntax verified via `node --check`
+- ✅ Vite build passes (`npx vite build`)
+- ✅ No external http/src/href except anchor links (Gumroad + privacy.html)
+- ✅ File size 6038 bytes (under 10KB target)
+- 🔜 Next: user uploads to Gumroad as $0 free magnet
 **Action**: Reviewer blockers R1-R6, R9, R11, R15, R16 implemented by dev-worker
 - R1: email-1-thank-you.md — removed free-trial language, replaced with free JSON Formatter magnet pointer
 - R2: email-2-case-study.md — removed fabricated reviewer quotes, replaced with verifiable-fact-only social proof
@@ -191,3 +203,44 @@
 - Verified: `#tool-main` exclusion preserved in lead-capture code
 - Verified: `public/chatbase_details.md` retained (documentation, not a stale snippet)
 - Committed and pushed to GitHub
+
+## Session 14 — 2026-09-08
+**Action**: Built CDP/devops toolkit under `tools/`
+- @dev-worker created 7 files: `cdp.js`, `verify-links.js`, `gumroad-upload.js`, `vercel-status.js`, `chatbase-kb.js`, `readme.md`, `package.json`
+- Shared `cdp.js` primal: `listTargets()`, `openTab()`, `evalInTab()`, `clickByText()`, `fillInput()`, `setFileInput()`, `screenshot()`, `pageText()` — all via Chrome CDP over `ws` module
+- `verify-links.js`: curl-equivalent via `https.get`, follows up to 3 redirects, `--check N`
+- `gumroad-upload.js`: `--file` + `--tab` + `--yes` flag, dry-run default, `DOM.setFileInputFiles`
+- `vercel-status.js`: reads deployment list, extracts readyState + commit sha, exit 0 if READY
+- `chatbase-kb.js`: `--snippet` + `--file`, sets contenteditable, clicks Save + Retrain, dry-run default
+- Reused `ws` 8.21.3 from `/tmp/opencode/cdp/node_modules/ws` (copied to `tools/node_modules/ws`, no npm install)
+- CommonJS (`"type": "commonjs"`), Node 16 only, no new deps beyond `ws` + builtins
+- All tools run `node tools/<tool>.js --help` without crashing
+- Created `AGENT_STATE.md` with KILL_SWITCH: NOT ARMED guardrail
+- Total suite: ~280 lines across 7 files
+- No product code in `tiny_coder/src/` was touched
+
+## Session 15 — 2026-09-09
+**Action**: Built scheduled-posting tools for dev.to and Bluesky
+- @dev-worker created `tools/lib/state.js`, `tools/lib/guardrails.js`, `tools/lib/logger.js` — shared helpers extracted from twitter-poster.js + check-post-readiness.js
+- Created `tools/devto-poster.js` — posts to dev.to via stdlib `https` (`POST https://dev.to/api/articles`, `api-key` header). No CDP needed. Auth: `DEVTO_API_KEY`.
+- Created `tools/bluesky-poster.js` — posts to Bluesky via stdlib `https` using AT Protocol XRPC (`createSession` → `app.bsky.feed.post.create`). No `@atproto/api` (requires Node >= 22). Auth: `BSKY_HANDLE` + `BSKY_APP_PASSWORD`.
+- Refactored `twitter-poster.js` and `check-post-readiness.js` to use shared lib
+- All posters: `--yes` required for mutation, `--status`/`--check`/`--log`/`--help` flags, dry-run by default
+- `@atproto/api` rejected — requires Node >= 22, incompatible with Node 16 GLIBC 2.27 constraint
+- KILL_SWITCH, 48h readiness, post-schedule.json, post-log.json all shared via lib
+- Vite build passes, committed and pushed to GitHub master
+
+## Session 16 — 2026-09-09
+**Action**: Wired --whoami auth-check to devto-poster.js and bluesky-poster.js
+- Confirmed both tools already read creds from env (DEVTO_API_KEY, BSKY_HANDLE, BSKY_APP_PASSWORD) — no env changes needed
+- Added `whoamiDevTo()` hitting `https://dev.to/api/users/me` with `api-key` header
+- Added `whoamiBluesky()` hitting `createSession` endpoint, returns handle only
+- Added `--whoami` CLI flag to both tools following existing `--status`/`--check`/`--log` argv style
+- Missing env → clean error message + exit 1, no network post attempts
+- Secrets never written to code, logs, or post-log.json; --whoami prints only username/handle
+- Updated --help usage strings and module.exports in both files
+- Build passes, committed and pushed to GitHub master
+- **Export commands:**
+  - `DEVTO_API_KEY=<key> node tools/devto-poster.js --whoami`
+  - `BSKY_HANDLE=<handle> BSKY_APP_PASSWORD=<password> node tools/bluesky-poster.js --whoami`
+- **Gaps blocking scheduled posting:** None — --whoami validates auth without posting; --post still requires --yes flag and checkReadiness() 48h spacing
