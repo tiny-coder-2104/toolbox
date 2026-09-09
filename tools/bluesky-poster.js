@@ -54,6 +54,11 @@ async function postToBluesky(text, handle, appPassword) {
   return post;
 }
 
+async function whoamiBluesky(handle, appPassword) {
+  const session = await createSession(handle, appPassword);
+  return { handle: session.handle };
+}
+
 async function postBluesky(text, opts = {}) {
   const handle = process.env.BSKY_HANDLE;
   const appPassword = process.env.BSKY_APP_PASSWORD;
@@ -80,7 +85,7 @@ async function postBluesky(text, opts = {}) {
 if (require.main === module) {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
-    console.log('Usage: node bluesky-poster.js --post <text> --yes | --status | --check <platform> | --log');
+console.log('Usage: node bluesky-poster.js --post <text> --yes | --whoami | --status | --check <platform> | --log');
     process.exit(0);
   }
   if (args.includes('--post')) {
@@ -92,6 +97,16 @@ if (require.main === module) {
       console.log(JSON.stringify(r, null, 2));
       process.exit(r.posted ? 0 : 1);
     });
+    return;
+  }
+  if (args.includes('--whoami')) {
+    const handle = process.env.BSKY_HANDLE;
+    const appPassword = process.env.BSKY_APP_PASSWORD;
+    if (!handle || !appPassword) { console.error('Error: BSKY_HANDLE and BSKY_APP_PASSWORD not set'); process.exit(1); }
+    whoamiBluesky(handle, appPassword).then(r => {
+      console.log(JSON.stringify({ platform: 'bluesky', handle: r.handle }));
+      process.exit(0);
+    }).catch(e => { console.error('Auth failed'); process.exit(1); });
     return;
   }
   if (args.includes('--status')) { console.log(JSON.stringify(getPostStatus(), null, 2)); process.exit(0); }
@@ -107,8 +122,8 @@ if (require.main === module) {
     else console.log('No posts logged yet');
     process.exit(0);
   }
-  console.log('Usage: node bluesky-poster.js --post <text> --yes | --status | --check <platform> | --log');
+    console.log('Usage: node bluesky-poster.js --post <text> --yes | --whoami | --status | --check <platform> | --log');
   process.exit(0);
 }
 
-module.exports = { postBluesky, createSession, createPost };
+module.exports = { postBluesky, createSession, createPost, whoamiBluesky };

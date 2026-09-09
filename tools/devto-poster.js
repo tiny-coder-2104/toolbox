@@ -8,6 +8,25 @@ const { logPost, getPostStatus } = require('./lib/logger');
 
 const API_URL = 'https://dev.to/api/articles';
 
+function whoamiDevTo(apiKey) {
+  return new Promise((resolve, reject) => {
+    const req = https.request('https://dev.to/api/users/me', {
+      headers: { 'api-key': apiKey }
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try {
+          const user = JSON.parse(data);
+          resolve({ username: user.username, name: user.name });
+        } catch(e) { resolve({ error: 'Invalid response from dev.to' }); }
+      });
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
+
 function postToDevTo(article, apiKey) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({ article });
@@ -60,7 +79,7 @@ async function postDevTo(text, opts = {}) {
 if (require.main === module) {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
-    console.log('Usage: node devto-poster.js --post <text> --yes [--title <t>] [--tags <tags>] | --status | --check <platform> | --log');
+    console.log('Usage: node devto-poster.js --post <text> --yes [--title <t>] [--tags <tags>] | --whoami | --status | --check <platform> | --log');
     process.exit(0);
   }
   if (args.includes('--post')) {
@@ -81,6 +100,16 @@ if (require.main === module) {
     });
     return;
   }
+  if (args.includes('--whoami')) {
+    const apiKey = process.env.DEVTO_API_KEY;
+    if (!apiKey) { console.error('Error: DEVTO_API_KEY not set'); process.exit(1); }
+    whoamiDevTo(apiKey).then(r => {
+      if (r.error) { console.error(r.error); process.exit(1); }
+      console.log(JSON.stringify({ platform: 'dev.to', username: r.username, name: r.name }));
+      process.exit(0);
+    }).catch(e => { console.error('Auth failed'); process.exit(1); });
+    return;
+  }
   if (args.includes('--status')) { console.log(JSON.stringify(getPostStatus(), null, 2)); process.exit(0); }
   if (args.includes('--check')) {
     const plat = args[args.indexOf('--check') + 1] || 'devto';
@@ -98,4 +127,4 @@ if (require.main === module) {
   process.exit(0);
 }
 
-module.exports = { postDevTo };
+module.exports = { postDevTo, whoamiDevTo };
