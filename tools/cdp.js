@@ -3,7 +3,7 @@ const http = require('http');
 const WebSocket = require('ws');
 
 const PORT = process.env.CDP_PORT || 9222;
-const BASE = `http://127.0.0.1:${PORT}`;
+const BASE = process.env.CDP_HOST || `http://127.0.0.1:${PORT}`;
 let cmdId = 1;
 
 if (require.main === module && process.argv.includes('--help')) {
@@ -44,11 +44,40 @@ async function openTab(wsUrl) {
   return ws;
 }
 
-async function evalInTab(wsUrl, expression) {
+async function evalInTab(wsUrl, expression, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    const ws = await wsConnect(wsUrl);
+    try {
+      const r = await sendCmd(ws, 'Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+      return r.result || r;
+    } catch (e) {
+      if (i === retries - 1) throw e;
+      await new Promise(res => setTimeout(res, 1500)); // context may be mid-navigation; retry after settle
+    } finally {
+      ws.close();
+    }
+  }
+}
+
+// Navigate without destroying the eval context mid-flight (location.href evals
+// race with navigation and lose the CDP response). Returns immediately; poll
+// document.readyState afterwards.
+async function navigate(wsUrl, url) {
   const ws = await wsConnect(wsUrl);
-  const r = await sendCmd(ws, 'Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+  const r = await sendCmd(ws, 'Page.navigate', { url });
   ws.close();
   return r.result || r;
+}
+
+// Poll until the page has finished loading (readyState complete).
+async function waitLoaded(wsUrl, timeoutMs = 15000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const r = await evalInTab(wsUrl, 'document.readyState');
+    if (r && r.value === 'complete') return true;
+    await new Promise(res => setTimeout(res, 1000));
+  }
+  return false;
 }
 
 async function withTab(wsUrl, fn) {
@@ -110,4 +139,4 @@ async function pageText(wsUrl) {
   return r.result?.value || '';
 }
 
-module.exports = { listTargets, openTab, evalInTab, clickByText, fillInput, setFileInput, screenshot, pageText };
+module.exports = { listTargets, openTab, evalInTab, navigate, waitLoaded, withTab, clickByText, fillInput, setFileInput, screenshot, pageText };

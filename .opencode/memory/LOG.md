@@ -244,3 +244,25 @@
   - `DEVTO_API_KEY=<key> node tools/devto-poster.js --whoami`
   - `BSKY_HANDLE=<handle> BSKY_APP_PASSWORD=<password> node tools/bluesky-poster.js --whoami`
 - **Gaps blocking scheduled posting:** None — --whoami validates auth without posting; --post still requires --yes flag and checkReadiness() 48h spacing
+
+## Session 17 — 2026-09-12
+**Action**: Built Bugcrowd automation tools (bugcrowd-submit.js + bugcrowd-triage-check.js)
+- @dev-worker created `tools/bugcrowd-submit.js` — submit reports from markdown drafts via CDP
+  - CLI: `--program <code> --report <path.md> [--yes]`, dry-run default
+  - Login check via `document.body.innerText` (no `:has-text()` which is Puppeteer-only)
+  - VRT dropdown via React fiber walk from `.vrt-dropdown` → `fiber.memoizedState.rawFlatVRT` → `stateNode.onOptionSelect(leaf, true)`
+  - Textarea: `Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set` + input event
+  - Screenshot before/after fill + error screenshots via fixed `cdp.js`
+  - Verify at `/submissions?program={code}`, append to `bug-bounty/logs/hunt-log.md`
+  - Bails with clear message if Bugcrowd session not found (no Okta automation)
+- @dev-worker created `tools/bugcrowd-triage-check.js` — read-only submission status checker
+  - Diffs against `bug-bounty/triage-state.json`
+  - Reports CHANGED/NEW/DISAPPEARED entries
+  - Baseline capture on first run
+  - Summary: "X submissions, Y pending, Z changed since last check"
+- @dev-worker fixed `tools/cdp.js` `screenshot()` — was discarding base64 PNG data; now writes to disk
+- **Verification:** Both tools pass `node --check`; dry-run modes confirmed clean
+- **Login test:** Bugcrowd session NOT active in Chrome profile — redirects to Okta auth. Tools correctly bail with "Bugcrowd session not found in Chrome profile" message.
+- **Deviations:** Could not capture triage baseline (session expired); user must log in manually first
+- **What remains for OpenSea report:** Human must log in to Bugcrowd in Chrome, then run `bugcrowd-submit.js --program opensea --report ... --yes`
+- Committed and pushed to GitHub master

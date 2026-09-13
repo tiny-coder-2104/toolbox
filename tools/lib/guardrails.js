@@ -14,7 +14,7 @@ function checkKillSwitch() {
 function checkReadiness(platform) {
   try {
     const result = execSync(
-      `node "${path.join(__dirname, '..', 'check-post-readiness.js')}" --platform "${platform}"`,
+      `"${process.execPath}" "${path.join(__dirname, '..', 'check-post-readiness.js')}" --platform "${platform}"`,
       { encoding: 'utf8', timeout: 10000 }
     );
     return { ready: true, output: result.trim() };

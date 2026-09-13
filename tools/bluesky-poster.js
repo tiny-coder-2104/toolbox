@@ -7,7 +7,7 @@ const { checkKillSwitch, checkReadiness } = require('./lib/guardrails');
 const { logPost, getPostStatus } = require('./lib/logger');
 
 const SESSION_URL = 'https://bsky.social/xrpc/com.atproto.server.createSession';
-const POST_URL = 'https://bsky.social/xrpc/app.bsky.feed.post.create';
+const POST_URL = 'https://bsky.social/xrpc/com.atproto.repo.createRecord';
 
 function httpsRequest(url, opts, body) {
   return new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ async function createSession(handle, appPassword) {
 }
 
 async function createPost(did, accessJwt, text) {
-  const record = { text, createdAt: new Date().toISOString() };
+  const record = { $type: 'app.bsky.feed.post', text, createdAt: new Date().toISOString() };
   const result = await httpsRequest(POST_URL, {
     headers: { 'Authorization': `Bearer ${accessJwt}` }
   }, { repo: did, collection: 'app.bsky.feed.post', record });

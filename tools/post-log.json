@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2026-09-09T14:20:38.598Z",
+    "platform": "bluesky",
+    "text": "Building an AI humanizer that aims to sound human — not robotic paraphrase. Early access list opening soon. Follow along while I build in public. #BuildInPublic #AI"
+  },
+  {
+    "timestamp": "2026-09-09T14:21:54.576Z",
+    "platform": "bluesky",
+    "text": "Building an AI humanizer that aims to sound human — not robotic paraphrase. Early access list opening soon. Follow along while I build in public. #BuildInPublic #AI"
+  },
+  {
+    "timestamp": "2026-09-09T14:22:03.491Z",
+    "platform": "devto",
+    "text": "Hey — I'm building an AI humanizer in public, and I wanted to share what I'm learning before there's anything to launch.\n\n## The problem I'm seeing\n\nMost \"humanizers\" I've tried just swap synonyms. Yo"
+  },
+  {
+    "timestamp": "2026-09-10T00:13:27.184Z",
+    "platform": "devto",
+    "text": "Last week I wrote about building an AI humanizer that actually sounds human. @topstar_ai pointed out the hardest challenge — and they're right. The hardest part isn't making AI text longer. It's makin"
+  },
+  {
+    "timestamp": "2026-09-10T00:13:38.785Z",
+    "platform": "devto",
+    "text": "Last week I wrote about building an AI humanizer that actually sounds human. @topstar_ai pointed out the hardest challenge — and they're right. The hardest part isn't making AI text longer. It's makin"
+  },
+  {
+    "timestamp": "2026-09-13T03:28:37.462Z",
+    "platform": "devto",
+    "text": "# I Found an Undocumented MCP Server on OpenSea — and It Leaked Usernames for Any Wallet\n\n**TL;DR:** OpenSea runs an undocumented MCP server at `mcp.opensea.io/mcp`. One of its tools hands out API key"
+  }
+]

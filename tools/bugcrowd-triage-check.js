@@ -1,5 +1,5 @@
 'use strict';
-const { listTargets, evalInTab } = require('/home/yuki/ai_works/tiny_coder/tools/cdp');
+const { listTargets, evalInTab, navigate, waitLoaded } = require('/home/yuki/ai_works/tiny_coder/tools/cdp');
 const fs = require('fs');
 const path = require('path');
 
@@ -16,49 +16,81 @@ function ts() { return new Date().toISOString().replace(/[:.]/g, '-'); }
 // ── Login check ──────────────────────────────────────────────
 
 async function checkLoggedIn(wsUrl) {
-  const r = await evalInTab(wsUrl, `
-    (function() {
-      var text = document.body.innerText;
-      var hasUserMenu = !!document.querySelector('[class*="user-menu"], [class*="avatar"], [class*="profile-menu"], .user-avatar');
-      var hasHackerLogin = text.includes('Hacker Login') || text.includes('Sign in');
-      var hasDashboard = text.includes('Dashboard') || text.includes('My Submissions');
-      return { hasUserMenu, hasHackerLogin, hasDashboard, url: window.location.href };
-    })()
-  `);
-  const v = r?.value || r;
-  if (!v) return false;
-  if (v.hasUserMenu || v.hasDashboard) return true;
-  if (v.hasHackerLogin && !v.hasUserMenu) return false;
-  return v.url && !v.url.includes('/sign_in') && !v.url.includes('/login');
+  // Definitive test: /submissions loads when logged in, redirects to Okta when not.
+  // (Marketing-page DOM checks are unreliable — "Hacker Login" is always in the nav.)
+  await navigate(wsUrl, 'https://bugcrowd.com/submissions');
+  await waitLoaded(wsUrl);
+  await new Promise(r => setTimeout(r, 2000)); // let React render
+  const r = await evalInTab(wsUrl, `JSON.stringify({ url: window.location.href, title: document.title })`);
+  let v = r?.value || r;
+  if (typeof v === 'string') { try { v = JSON.parse(v); } catch (e) {} }
+  const url = (v && v.url) || '';
+  const redirectedToOkta = /login\.hackers\.bugcrowd\.com|identity\.bugcrowd\.com|\/sign_in|\/login/.test(url);
+  return !redirectedToOkta;
 }
 
 // ── Extract submissions from page ──────────────────────────
 
 async function extractSubmissions(wsUrl) {
-  const r = await evalInTab(wsUrl, `
+  // Poll until React renders the cards (page is a slow client-side app)
+  let result = null;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const r = await evalInTab(wsUrl, `
     (function() {
-      var rows = document.querySelectorAll('tr, [class*="submission-row"], [class*="submission"]');
+      // Real structure: li.bc-submission-card > a[href*="/submissions/"] with
+      // title, program, severity, status in the card text.
+      var cards = document.querySelectorAll('li.bc-submission-card');
       var submissions = [];
-      rows.forEach(function(row) {
-        var text = row.textContent.trim();
+      cards.forEach(function(card) {
+        var link = card.querySelector('a[href*="/submissions/"]');
+        var text = card.textContent.replace(/\\s+/g, ' ').trim();
         if (!text || text.length < 5) return;
-        // Try to extract structured data
-        var titleMatch = text.match(/(?:Title|title)[:\\s]+(.+?)(?:\\||$)/);
-        var statusMatch = text.match(/(New|Triaged|Resolved|Not Applicable|Closed|Pending|In Progress)/i);
-        var programMatch = text.match(/(OpenSea|Etsy|SEEK|Monash|Skyscanner|Asana|Atlassian|Canva|Glassdoor|Linktree|New Relic|Trello)/);
-        if (titleMatch || statusMatch) {
-          submissions.push({
-            title: titleMatch ? titleMatch[1].trim().substring(0, 100) : text.substring(0, 100),
-            program: programMatch ? programMatch[1] : 'unknown',
-            status: statusMatch ? statusMatch[1] : 'unknown',
-            text: text.substring(0, 200)
-          });
+        var id = null;
+        if (link) {
+          var m = link.getAttribute('href').match(/\\/submissions\\/([0-9a-f-]{36})/);
+          if (m) id = m[1];
         }
+        var title = link ? link.textContent.trim() : text.substring(0, 100);
+        // Card format: <title><program>In progressSubmitted <date>Last activity <x>P<sev><STATUS><state desc> Comments <n>
+        // DOM concatenates elements without spaces ("P4New"), so status = capitalized
+        // word(s) right after the severity marker, whitespace optional.
+        // DOM concatenates elements without spaces ("agoP3NewStill") — no \b before P.
+        var statusMatch = text.match(/P[1-5]\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,1})/);
+        var sevMatch = text.match(/P[1-5]/);
+        // Title = link text cut at the first workflow marker (never in titles).
+        // Program name = the tail of the pre-marker text (report titles can start
+        // with the program name, so match the trailing segment, not the first).
+        var cut = title.search(/In progress|Submitted|Last activity/);
+        var progName = 'unknown';
+        if (cut > 0) {
+          var pre = title.substring(0, cut).trim();
+          // Program name = known program anchored at the END of the pre-marker text
+          // (report titles can start with the program name, so match the tail)
+          var tail = pre.match(/(OpenSea Managed Bug Bounty Program|Monash University Bug Bounty|Skyscanner|Asana|Atlassian|Canva|Glassdoor|Linktree|New Relic|Trello|OpenSea|Etsy|SEEK)$/);
+          if (tail) {
+            progName = tail[1];
+            title = pre.substring(0, pre.length - progName.length).trim();
+          } else {
+            title = pre;
+          }
+        }
+        submissions.push({
+          id: id,
+          title: title.substring(0, 120),
+          program: progName,
+          severity: sevMatch ? sevMatch[1] : '',
+          status: statusMatch ? statusMatch[1] : 'unknown',
+          text: text.substring(0, 250)
+        });
       });
       return { count: submissions.length, submissions: submissions.slice(0, 50) };
-    })
+    })()
   `);
-  return r?.value || r;
+    const v = r?.value || r;
+    if (v && v.count > 0) { result = v; break; }
+    await new Promise(res => setTimeout(res, 2000));
+  }
+  return result;
 }
 
 // ── Also try the API endpoint for cleaner data ──────────────
@@ -131,8 +163,8 @@ async function main() {
 
   // Navigate to Bugcrowd before checking login
   console.log('Navigating to https://bugcrowd.com');
-  await evalInTab(wsUrl, `window.location.href = 'https://bugcrowd.com'`);
-  await new Promise(r => setTimeout(r, 2000));
+  await navigate(wsUrl, 'https://bugcrowd.com');
+  await waitLoaded(wsUrl);
 
   // Check login
   console.log('Checking login state...');
@@ -145,8 +177,8 @@ async function main() {
 
   // Navigate to submissions page
   console.log('Navigating to https://bugcrowd.com/submissions');
-  await evalInTab(wsUrl, `window.location.href = 'https://bugcrowd.com/submissions'`);
-  await new Promise(r => setTimeout(r, 3000));
+  await navigate(wsUrl, 'https://bugcrowd.com/submissions');
+  await waitLoaded(wsUrl);
 
   // Extract submissions
   console.log('Extracting submissions...');

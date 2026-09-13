@@ -1,5 +1,5 @@
 'use strict';
-const { listTargets, evalInTab, screenshot: cdpScreenshot } = require('/home/yuki/ai_works/tiny_coder/tools/cdp');
+const { listTargets, evalInTab, navigate, waitLoaded, screenshot: cdpScreenshot } = require('/home/yuki/ai_works/tiny_coder/tools/cdp');
 const fs = require('fs');
 const path = require('path');
 
@@ -60,28 +60,25 @@ function parseReport(mdPath) {
   const description = [sections['Summary'], sections['Steps to Reproduce'], sections['Impact'], sections['Evidence']]
     .filter(Boolean).join('\n\n');
 
-  return { title, vrtPath, severity, description, sections };
+  // Bug URL: first http(s) URL in the Affected endpoint section
+  const endpointSection = sections['Affected endpoint'] || '';
+  const urlMatch = endpointSection.match(/https?:\/\/[^\s`)]+/);
+  const bugUrl = urlMatch ? urlMatch[0].replace(/[.,;]+$/, '') : '';
+
+  return { title, vrtPath, severity, description, bugUrl, sections };
 }
 
 // ── Login check ──────────────────────────────────────────────────────
 
 async function checkLoggedIn(wsUrl) {
-  const r = await evalInTab(wsUrl, `
-    (function() {
-      var text = document.body.innerText;
-      var hasUserMenu = !!document.querySelector('[class*="user-menu"], [class*="avatar"], [class*="profile-menu"], .user-avatar, [data-testid="user-menu"]');
-      var hasHackerLogin = text.includes('Hacker Login') || text.includes('Sign in');
-      var hasDashboard = text.includes('Dashboard') || text.includes('My Submissions');
-      return { hasUserMenu, hasHackerLogin, hasDashboard, url: window.location.href };
-    })()
-  `);
-  const v = r?.value || r;
-  if (!v) return false;
-  // Logged in = has user menu/dashboard AND no Hacker Login button
-  if (v.hasUserMenu || v.hasDashboard) return true;
-  if (v.hasHackerLogin && !v.hasUserMenu) return false;
-  // Fallback: check URL
-  return v.url && !v.url.includes('/sign_in') && !v.url.includes('/login');
+  // No navigation: the caller has already navigated to the target page.
+  // If it loaded (not redirected to Okta), we're logged in.
+  const r = await evalInTab(wsUrl, `JSON.stringify({ url: window.location.href, title: document.title })`);
+  let v = r?.value || r;
+  if (typeof v === 'string') { try { v = JSON.parse(v); } catch (e) {} }
+  const url = (v && v.url) || '';
+  const redirectedToOkta = /login\.hackers\.bugcrowd\.com|identity\.bugcrowd\.com|\/sign_in|\/login/.test(url);
+  return !redirectedToOkta;
 }
 
 // ── VRT dropdown via React fiber walk ──────────────────────────────
@@ -95,22 +92,29 @@ async function selectVRT(wsUrl, vrtPath) {
       var dropdown = document.querySelector('.vrt-dropdown');
       if (!dropdown) return { error: 'no .vrt-dropdown element found' };
 
-      // Walk up to find React fiber
+      // Walk up the DOM tree from the dropdown until a node with a React fiber.
+      // React 18+ uses randomized keys (__reactFiber$<rand>), older uses __reactInternalFiber$.
+      function fiberKey(el) {
+        var keys = Object.getOwnPropertyNames(el);
+        for (var i = 0; i < keys.length; i++) {
+          if (keys[i].indexOf('__reactFiber$') === 0 || keys[i].indexOf('__reactInternalFiber$') === 0) return keys[i];
+        }
+        return null;
+      }
       var fiber = dropdown;
       var depth = 0;
       while (fiber && depth < 50) {
-        if (fiber._reactInternalFiber) { fiber = fiber._reactInternalFiber; break; }
-        if (fiber._reactInternalInstance) { fiber = fiber._reactInternalInstance; break; }
-        fiber = fiber.__reactInternalInstance$ || fiber.__reactInternalFiber$;
-        if (!fiber) fiber = fiber.parentNode;
+        var fk = fiberKey(fiber);
+        if (fk) { fiber = fiber[fk]; break; }
+        fiber = fiber.parentNode;
         depth++;
       }
       if (!fiber) return { error: 'could not find React fiber from .vrt-dropdown' };
 
-      // Walk fiber tree to find component with memoizedState.rawFlatVRT
+      // Walk UP the fiber return chain — the VRT component is an ancestor of the dropdown
       var current = fiber;
       var visited = 0;
-      while (current && visited < 200) {
+      while (current && visited < 50) {
         if (current.memoizedState && current.memoizedState.rawFlatVRT) {
           var state = current.memoizedState;
           var rawFlatVRT = state.rawFlatVRT;
@@ -119,24 +123,36 @@ async function selectVRT(wsUrl, vrtPath) {
             return { error: 'found fiber but stateNode has no onOptionSelect', hasStateNode: !!inst };
           }
 
-          // Find leaf variant matching the target name
+          // Find leaf variant matching the target name.
+          // rawFlatVRT names are FULL paths ("Cat > Sub > Leaf") with
+          // inconsistent spacing ("View Sensitive Information(Iterable...)")
+          // — normalize by stripping whitespace and comparing leaf names.
+          function norm(s) { return s.replace(/\\s+/g, '').toLowerCase(); }
+          var leafNorm = norm('${leafName}');
           var leaf = null;
           var keys = Object.keys(rawFlatVRT);
           for (var i = 0; i < keys.length; i++) {
             var item = rawFlatVRT[keys[i]];
-            if (item && item.name === '${leafName}') { leaf = item; break; }
+            if (!item || !item.name) continue;
+            var itemLeaf = item.name.split('>').pop().trim();
+            if (norm(itemLeaf) === leafNorm) { leaf = item; break; }
+          }
+          if (!leaf) {
+            // Fallback: full-path normalized match
+            for (var i = 0; i < keys.length; i++) {
+              var item = rawFlatVRT[keys[i]];
+              if (!item || !item.name) continue;
+              if (norm(item.name) === norm('${vrtPath}')) { leaf = item; break; }
+            }
           }
           if (!leaf) {
             return { error: 'leaf variant not found: ${leafName}', available: keys.map(function(k){return rawFlatVRT[k].name||k}) };
           }
 
-          inst.onOptionSelect(leaf, true);
+          inst.onOptionSelect(leaf, false); // false = don't toggle dropdown open
           return { ok: true, selected: leaf.name, category: '${parts[0]}' };
         }
-        // Walk to child or sibling
-        if (current.child) { current = current.child; }
-        else if (current.sibling) { current = current.sibling; }
-        else { current = current.return; }
+        current = current.return;
         visited++;
       }
       return { error: 'fiber walk exhausted without finding rawFlatVRT' };
@@ -152,15 +168,16 @@ async function selectVRT(wsUrl, vrtPath) {
 // ── Fill form fields ────────────────────────────────────────────────
 
 async function fillForm(wsUrl, report) {
-  // Title — use native setter for textarea, standard for input
+  // Title — the real field is submission[caption]
   const titleResult = await evalInTab(wsUrl, `
     (function() {
-      var el = document.querySelector('input[name="title"], input[id*="title"], textarea[name="title"]');
+      var el = document.querySelector('input[name="submission[caption]"], input[name="title"], input[id*="title"], textarea[name="title"]');
       if (!el) return { error: 'title field not found' };
       if (el.tagName === 'TEXTAREA') {
         Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set.call(el, ${JSON.stringify(report.title)});
       } else {
-        el.value = ${JSON.stringify(report.title)};
+        // React-controlled input: native setter, not direct assignment
+        Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, ${JSON.stringify(report.title)});
       }
       el.dispatchEvent(new Event('input', { bubbles: true }));
       el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -170,14 +187,54 @@ async function fillForm(wsUrl, report) {
   const tr = titleResult?.value || titleResult;
   if (tr?.error) throw new Error(`Title fill failed: ${tr.error}`);
 
-  // VRT dropdown via fiber walk
-  console.log('  Selecting VRT:', report.vrtPath);
-  await selectVRT(wsUrl, report.vrtPath);
+  // Target select — prefer domain-style match (opensea.io over "io.opensea - Android App")
+  const targetResult = await evalInTab(wsUrl, `
+    (function() {
+      var sel = document.querySelector('select[name="submission[target_id]"]');
+      if (!sel) return { error: 'target select not found' };
+      var prog = '${PROGRAM.toLowerCase()}';
+      var opts = Array.from(sel.options).filter(function(o) { return o.value; });
+      var match = opts.find(function(o) { return o.textContent.trim().toLowerCase() === prog; })
+        || opts.find(function(o) { return o.textContent.trim().toLowerCase().indexOf(prog + '.') === 0; })
+        || opts.find(function(o) { return /^https?:/.test(o.textContent.trim()) && o.textContent.toLowerCase().indexOf(prog) !== -1; })
+        || opts.find(function(o) { return o.textContent.toLowerCase().indexOf(prog) !== -1; });
+      var pick = match || opts[0];
+      if (!pick) return { error: 'no target option available' };
+      sel.value = pick.value;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      return { ok: true, target: pick.textContent.trim().slice(0, 40) };
+    })()
+  `);
+  const tar = targetResult?.value || targetResult;
+  if (tar?.error) throw new Error(`Target select failed: ${tar.error}`);
+  console.log('  Target:', tar.target);
 
-  // Description textarea — native value setter + input event
+  // Bug URL
+  if (report.bugUrl) {
+    const urlResult = await evalInTab(wsUrl, `
+      (function() {
+        var el = document.querySelector('input[name="submission[bug_url]"]');
+        if (!el) return { error: 'bug_url field not found' };
+        Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, ${JSON.stringify(report.bugUrl)});
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        return { ok: true };
+      })()
+    `);
+    const ur = urlResult?.value || urlResult;
+    if (ur?.error) throw new Error(`Bug URL fill failed: ${ur.error}`);
+    console.log('  Bug URL:', report.bugUrl);
+  } else {
+    console.log('  Bug URL: none in report, skipping');
+  }
+
+  // Description textarea — native value setter + input event.
+  // MUST be filled BEFORE the VRT selection: the VRT setState triggers a
+  // React re-render that resets the textarea to React's state, so the
+  // description has to be committed to React state first.
   const descResult = await evalInTab(wsUrl, `
     (function() {
-      var el = document.querySelector('textarea[name="description"], textarea[id*="description"], textarea[name="details"], textarea[name="submission[description]"], textarea[name="submission[details]"]');
+      var el = document.querySelector('textarea[name="submission[description]"], textarea[name="description"], textarea[id*="description"], textarea[name="details"], textarea[name="submission[details]"]');
       if (!el) return { error: 'description textarea not found' };
       Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set.call(el, ${JSON.stringify(report.description)});
       el.dispatchEvent(new Event('input', { bubbles: true }));
@@ -188,6 +245,27 @@ async function fillForm(wsUrl, report) {
   `);
   const dr = descResult?.value || descResult;
   if (dr?.error) throw new Error(`Description fill failed: ${dr.error}`);
+  await new Promise(r => setTimeout(r, 1500)); // let React commit the description
+
+  // VRT dropdown via fiber walk (after description — its re-render preserves it)
+  console.log('  Selecting VRT:', report.vrtPath);
+  await selectVRT(wsUrl, report.vrtPath);
+  await new Promise(r => setTimeout(r, 1500)); // let the VRT re-render flush
+
+  // Terms checkbox — required before submit
+  const termsResult = await evalInTab(wsUrl, `
+    (function() {
+      var el = document.querySelector('input[name="submission[terms_and_conditions]"]');
+      if (!el) return { error: 'terms checkbox not found' };
+      if (!el.checked) {
+        el.click();
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      return { ok: true, checked: el.checked };
+    })()
+  `);
+  const trm = termsResult?.value || termsResult;
+  if (trm?.error) throw new Error(`Terms check failed: ${trm.error}`);
 
   // Severity selector if present
   if (report.severity) {
@@ -286,8 +364,9 @@ async function main() {
 
   // Navigate to program submission page
   console.log(`Navigating to https://bugcrowd.com/engagements/${PROGRAM}/submissions/new`);
-  await evalInTab(_wsUrl, `window.location.href = 'https://bugcrowd.com/engagements/${PROGRAM}/submissions/new'`);
-  await new Promise(r => setTimeout(r, 3000));
+  await navigate(_wsUrl, `https://bugcrowd.com/engagements/${PROGRAM}/submissions/new`);
+  await waitLoaded(_wsUrl);
+  await new Promise(r => setTimeout(r, 2000)); // let React render
 
   // Check login
   console.log('Checking login state...');
@@ -305,13 +384,60 @@ async function main() {
   console.log('Filling form...');
   await fillForm(_wsUrl, report);
 
+  // Let React flush state updates from the fills
+  await new Promise(r => setTimeout(r, 2000));
+
+  // Verify form state before submitting; re-fill anything that didn't stick
+  const check = await evalInTab(_wsUrl, `JSON.stringify({
+    caption: (document.querySelector('input[name="submission[caption]"]')||{}).value,
+    vrt: (document.querySelector('input[name="submission[original_vrt_id]"]')||{}).value,
+    bugUrl: (document.querySelector('input[name="submission[bug_url]"]')||{}).value,
+    descLen: ((document.querySelector('textarea[name="submission[description]"]')||{}).value||'').length,
+    terms: (document.querySelector('input[name="submission[terms_and_conditions]"]')||{}).checked
+  })`);
+  let cv = check?.value || check;
+  if (typeof cv === 'string') { try { cv = JSON.parse(cv); } catch (e) {} }
+  console.log('Form state before submit:', JSON.stringify(cv));
+  if (!cv || !cv.caption || !cv.vrt || !cv.bugUrl || cv.descLen < 100 || !cv.terms) {
+    console.log('  Re-filling missing fields...');
+    await fillForm(_wsUrl, report);
+    await new Promise(r => setTimeout(r, 2000));
+    const check2 = await evalInTab(_wsUrl, `JSON.stringify({
+      caption: (document.querySelector('input[name="submission[caption]"]')||{}).value,
+      vrt: (document.querySelector('input[name="submission[original_vrt_id]"]')||{}).value,
+      bugUrl: (document.querySelector('input[name="submission[bug_url]"]')||{}).value,
+      descLen: ((document.querySelector('textarea[name="submission[description]"]')||{}).value||'').length,
+      terms: (document.querySelector('input[name="submission[terms_and_conditions]"]')||{}).checked
+    })`);
+    let cv2 = check2?.value || check2;
+    if (typeof cv2 === 'string') { try { cv2 = JSON.parse(cv2); } catch (e) {} }
+    console.log('Form state after re-fill:', JSON.stringify(cv2));
+  }
+
   // Screenshot after filling
   await doScreenshot(_wsUrl);
 
   // Submit
   console.log('Submitting...');
   await clickSubmit(_wsUrl);
-  await new Promise(r => setTimeout(r, 5000)); // wait for turnstile + redirect
+
+  // Wait for turnstile solve + submission redirect (up to 20s)
+  let submitted = false;
+  for (let i = 0; i < 10; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const st = await evalInTab(_wsUrl, `JSON.stringify({ url: window.location.href, turnstile: (document.querySelector('input[name="cf-turnstile-response"]')||{}).value ? 'SOLVED' : 'EMPTY' })`);
+    let sv = st?.value || st;
+    if (typeof sv === 'string') { try { sv = JSON.parse(sv); } catch (e) {} }
+    const url = (sv && sv.url) || '';
+    if (url && !url.includes('/submissions/new')) { submitted = true; break; }
+  }
+  if (!submitted) {
+    // Check for validation errors on the form
+    const err = await evalInTab(_wsUrl, `JSON.stringify({ url: window.location.href, errors: Array.from(document.querySelectorAll('.bc-error, .error, [class*="error"]')).map(function(e){return e.textContent.trim().slice(0,120)}).filter(Boolean).slice(0,5), turnstile: (document.querySelector('input[name="cf-turnstile-response"]')||{}).value ? 'SOLVED' : 'EMPTY' })`);
+    console.log('Submission did not redirect — form state:', JSON.stringify(err?.value || err));
+    throw new Error('Submission did not complete (no redirect from form page)');
+  }
+  console.log('Submitted ✓ (redirected from form)');
 
   // Verify
   console.log('Verifying submission...');
@@ -319,8 +445,9 @@ async function main() {
   console.log('Verification:', JSON.stringify(verification));
 
   // Navigate to submissions list
-  await evalInTab(_wsUrl, `window.location.href = 'https://bugcrowd.com/submissions?program=${PROGRAM}'`);
-  await new Promise(r => setTimeout(r, 3000));
+  await navigate(_wsUrl, `https://bugcrowd.com/submissions?program=${PROGRAM}`);
+  await waitLoaded(_wsUrl);
+  await new Promise(r => setTimeout(r, 2000));
   const subResult = await verifySubmission(_wsUrl, PROGRAM);
   console.log('Submissions list:', JSON.stringify(subResult));
 

@@ -11,7 +11,7 @@ const API_URL = 'https://dev.to/api/articles';
 function whoamiDevTo(apiKey) {
   return new Promise((resolve, reject) => {
     const req = https.request('https://dev.to/api/users/me', {
-      headers: { 'api-key': apiKey }
+      headers: { 'api-key': apiKey, 'User-Agent': 'pseudo-human-poster/1.0' }
     }, (res) => {
       let data = '';
       res.on('data', c => data += c);
@@ -35,6 +35,7 @@ function postToDevTo(article, apiKey) {
       headers: {
         'Content-Type': 'application/json',
         'api-key': apiKey,
+        'User-Agent': 'pseudo-human-poster/1.0',
         'Content-Length': Buffer.byteLength(body)
       }
     }, (res) => {

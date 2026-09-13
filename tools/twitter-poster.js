@@ -1,8 +1,12 @@
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const cdp = require('./cdp');
 const { loadState, saveState } = require('./lib/state');
 const { checkKillSwitch, checkReadiness } = require('./lib/guardrails');
 const { logPost, getPostStatus } = require('./lib/logger');
+
+const TWITTER_URL = 'https://x.com/compose/tweet';
 
 async function findTwitterTab() {
   const targets = await cdp.listTargets();
@@ -61,7 +65,9 @@ async function postViaCDP(text) {
       return null;
     })()`);
 
-    await cdp.evalInTab(wsUrl, `(function() {
+    // X uses a Lexical contentEditable editor: ta.value + synthetic events do
+    // nothing. execCommand('insertText') goes through the real input path.
+    const typed = await cdp.evalInTab(wsUrl, `(function() {
       var ta = document.querySelector('[data-testid="tweetTextarea_0"], textarea[aria-label="Post"], div[role="textbox"][aria-label="Post"]');
       if (!ta) {
         var allDivs = document.querySelectorAll('div[contenteditable="true"]');
@@ -70,12 +76,15 @@ async function postViaCDP(text) {
         }
       }
       if (!ta) return 'not found';
-      ta.value = ${safeText};
-      ta.dispatchEvent(new Event('input', {bubbles: true}));
-      ta.dispatchEvent(new Event('change', {bubbles: true}));
-      ta.dispatchEvent(new Event('blur', {bubbles: true}));
-      return 'typed';
+      ta.focus();
+      document.execCommand('selectAll', false, null);
+      var ok = document.execCommand('insertText', false, ${safeText});
+      return ok ? ('typed:' + (ta.innerText || '').length) : 'insert-failed';
     })()`);
+
+    if (typeof typed === 'string' && (typed === 'not found' || typed === 'insert-failed')) {
+      return { success: false, error: 'Could not type into tweet editor: ' + typed };
+    }
 
     await new Promise(r => setTimeout(r, 1000));
 
@@ -124,6 +133,7 @@ async function postScheduled(tweetText, platform) {
 
   try {
     const result = await postViaCDP(tweetText);
+    if (!result.success) return result;
     const state = loadState();
     const now = new Date().toISOString();
     state.last_post = now;
