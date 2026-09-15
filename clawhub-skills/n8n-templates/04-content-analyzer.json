@@ -1,0 +1,119 @@
+{
+  "name": "Content Analyzer",
+  "description": "Analyzes content for SEO, sentiment, readability - outputs structured data for dashboards",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "analyze-content",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook",
+      "name": "Webhook: Receive Content",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const text = $json.text || $json.content || $json.input;\nif (!text) throw new Error('Missing text/content/input field');\nreturn [{ json: { text } }];"
+      },
+      "id": "validate",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://consulting-auctions-forums-advisors.trycloudflare.com/api/analyze",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ { text: $json.text } }}"
+      },
+      "id": "x402-analyze",
+      "name": "Call x402 Analyze",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "credentials": {
+        "httpHeaderAuth": "x402 Payment Header"
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const stats = $json.stats || {};\nconst topWords = $json.top_words || [];\nconst sentiment = $json.sentiment_label || 'neutral';\nconst score = $json.sentiment_score || 0;\n\n// SEO recommendations\nconst recommendations = [];\nif (stats.words < 300) recommendations.push('Content too short for SEO (target 300+ words)');\nif (stats.sentences < 5) recommendations.push('Add more sentences for readability');\nif (topWords.length < 5) recommendations.push('Low keyword diversity - add related terms');\nif (sentiment === 'negative') recommendations.push('Negative sentiment - consider reframing');\n\n// Top keyword for SEO\nconst primaryKeyword = topWords[0]?.word || 'none';\nconst keywordDensity = topWords[0] ? (topWords[0].count / stats.words * 100).toFixed(1) : 0;\n\nreturn [{\n  json: {\n    stats,\n    top_keywords: topWords.slice(0, 5),\n    primary_keyword: primaryKeyword,\n    keyword_density_pct: parseFloat(keywordDensity),\n    sentiment: { label: sentiment, score },\n    seo: {\n      word_count_ok: stats.words >= 300,\n      reading_time_min: stats.reading_time_min,\n      recommendations\n    },\n    analyzed_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "enrich",
+      "name": "Enrich with SEO Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $json.seo.word_count_ok }}", "operation": "false" }
+          ]
+        }
+      },
+      "id": "ifShort",
+      "name": "If Too Short",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ { text: `⚠️ Content too short: ${$json.stats.words} words (need 300+)\\nPrimary keyword: ${$json.primary_keyword}\\nSentiment: ${$json.sentiment.label}`, channel: '#content-review' } }}"
+      },
+      "id": "slackShort",
+      "name": "Slack: Too Short",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [1250, 100]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 400]
+    }
+  ],
+  "connections": {
+    "Webhook: Receive Content": {
+      "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]]
+    },
+    "Validate Input": {
+      "main": [[{ "node": "Call x402 Analyze", "type": "main", "index": 0 }]]
+    },
+    "Call x402 Analyze": {
+      "main": [[{ "node": "Enrich with SEO Data", "type": "main", "index": 0 }]]
+    },
+    "Enrich with SEO Data": {
+      "main": [
+        [{ "node": "If Too Short", "type": "main", "index": 0 }],
+        [{ "node": "Respond", "type": "main", "index": 0 }]
+      ]
+    },
+    "If Too Short": {
+      "main": [
+        [{ "node": "Slack: Too Short", "type": "main", "index": 0 }],
+        [{ "node": "Respond", "type": "main", "index": 0 }]
+      ]
+    }
+  ],
+  "active": false,
+  "settings": {},
+  "id": "4"
+}

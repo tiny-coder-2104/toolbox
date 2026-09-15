@@ -1,0 +1,82 @@
+{
+  "name": "Oracle Task Router",
+  "description": "Routes incoming tasks to the correct specialist agent via x402 API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "route-task",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook",
+      "name": "Webhook: Receive Task",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const task = $json.task;\nif (!task) throw new Error('Missing task field');\nreturn [{ json: { task } }];"
+      },
+      "id": "validate",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://consulting-auctions-forums-advisors.trycloudflare.com/api/oracle/route",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ { task: $json.task } }}"
+      },
+      "id": "x402-route",
+      "name": "Call x402 Route API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "credentials": {
+        "httpHeaderAuth": "x402 Payment Header"
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const agent = $json.agent;\nconst reason = $json.reason;\n\nconst agentMap = {\n  'admin': 'Security Team',\n  'dev-worker': 'Engineering',\n  'loki': 'Marketing',\n  'product-reviewer': 'Compliance',\n  'graphic-artist': 'Design',\n  'navigator': 'Research',\n  'humanizer': 'Content',\n  'oracle': 'Orchestration'\n};\n\nreturn [{\n  json: {\n    original_task: $json.task,\n    assigned_to: agentMap[agent] || agent,\n    agent_key: agent,\n    reason: reason,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "format",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Receive Task": {
+      "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]]
+    },
+    "Validate Input": {
+      "main": [[{ "node": "Call x402 Route API", "type": "main", "index": 0 }]]
+    },
+    "Call x402 Route API": {
+      "main": [[{ "node": "Format Response", "type": "main", "index": 0 }]]
+    },
+    "Format Response": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "1"
+}

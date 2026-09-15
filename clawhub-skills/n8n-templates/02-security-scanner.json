@@ -1,0 +1,133 @@
+{
+  "name": "Security Code Scanner",
+  "description": "Scans code for vulnerabilities via x402 API - integrates with GitHub/GitLab webhooks",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scan-code",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook",
+      "name": "Webhook: Receive Code",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const code = $json.code || $json.text || $json.input;\nif (!code) throw new Error('Missing code/text/input field');\nreturn [{ json: { code } }];"
+      },
+      "id": "validate",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://consulting-auctions-forums-advisors.trycloudflare.com/api/security-scan",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ { code: $json.code } }}"
+      },
+      "id": "x402-scan",
+      "name": "Call x402 Security Scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "credentials": {
+        "httpHeaderAuth": "x402 Payment Header"
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const findings = $json.findings || [];\nconst summary = $json.summary || { high: 0, medium: 0, low: 0, total: 0 };\n\nconst highFindings = findings.filter(f => f.severity === 'HIGH');\nconst hasHigh = highFindings.length > 0;\n\nlet message = `Security Scan Complete\\n`;\nmessage += `Total: ${summary.total} | HIGH: ${summary.high} | MEDIUM: ${summary.medium} | LOW: ${summary.low}\\n\\n`;\n\nif (hasHigh) {\n  message += `🚨 HIGH SEVERITY FINDINGS:\\n`;\n  highFindings.forEach(f => {\n    message += `  • ${f.type}: ${f.examples?.[0] || 'N/A'}\\n`;\n  });\n} else {\n  message += `✅ No high-severity issues found\\n`;\n}\n\nreturn [{\n  json: {\n    summary,\n    findings,\n    has_high_severity: hasHigh,\n    alert_message: message,\n    scanned_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "format",
+      "name": "Format Results",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $json.has_high_severity }}", "operation": "true" }
+          ]
+        }
+      },
+      "id": "ifHigh",
+      "name": "If High Severity",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ { text: $json.alert_message, channel: '#security-alerts' } }}"
+      },
+      "id": "slackAlert",
+      "name": "Slack Alert (High)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [1250, 100]
+    },
+    {
+      "parameters": {
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ { text: $json.alert_message, channel: '#security-reports' } }}"
+      },
+      "id": "slackReport",
+      "name": "Slack Report (All)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 400]
+    }
+  ],
+  "connections": {
+    "Webhook: Receive Code": {
+      "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]]
+    },
+    "Validate Input": {
+      "main": [[{ "node": "Call x402 Security Scan", "type": "main", "index": 0 }]]
+    },
+    "Call x402 Security Scan": {
+      "main": [[{ "node": "Format Results", "type": "main", "index": 0 }]]
+    },
+    "Format Results": {
+      "main": [
+        [{ "node": "If High Severity", "type": "main", "index": 0 }],
+        [{ "node": "Respond", "type": "main", "index": 0 }]
+      ]
+    },
+    "If High Severity": {
+      "main": [
+        [{ "node": "Slack Alert (High)", "type": "main", "index": 0 }],
+        [{ "node": "Slack Report (All)", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "2"
+}

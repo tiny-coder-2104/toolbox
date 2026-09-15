@@ -1,0 +1,82 @@
+{
+  "name": "Content Humanizer",
+  "description": "Batch humanizes AI-generated content via x402 API - processes files, Notion pages, or webhook input",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "humanize",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook",
+      "name": "Webhook: Receive Text",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const text = $json.text || $json.content || $json.input;\nif (!text) throw new Error('Missing text/content/input field');\nreturn [{ json: { text } }];"
+      },
+      "id": "validate",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://consulting-auctions-forums-advisors.trycloudflare.com/api/humanize",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ { text: $json.text } }}"
+      },
+      "id": "x402-humanize",
+      "name": "Call x402 Humanize",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "credentials": {
+        "httpHeaderAuth": "x402 Payment Header"
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const original = $json.text;\nconst humanized = $json.text;\n\n// Calculate improvement metrics\nconst aiPhrases = [\n  'in today\\'s digital landscape', 'it is important to note that',\n  'furthermore', 'moreover', 'additionally', 'utilize', 'leverage',\n  'endeavor', 'facilitate', 'robust', 'seamless', 'unleash',\n  'delve', 'transformative', 'game-changer', 'i hope this email'\n];\n\nconst originalLower = original.toLowerCase();\nconst humanizedLower = humanized.toLowerCase();\n\nlet aiCountBefore = 0;\nlet aiCountAfter = 0;\naiPhrases.forEach(phrase => {\n  const regex = new RegExp(phrase.replace(/\\./g, '\\\\.'), 'gi');\n  aiCountBefore += (originalLower.match(regex) || []).length;\n  aiCountAfter += (humanizedLower.match(regex) || []).length;\n});\n\nreturn [{\n  json: {\n    original,\n    humanized,\n    metrics: {\n      ai_phrases_before: aiCountBefore,\n      ai_phrases_after: aiCountAfter,\n      reduction_pct: aiCountBefore > 0 ? Math.round((1 - aiCountAfter/aiCountBefore) * 100) : 0,\n      chars_original: original.length,\n      chars_humanized: humanized.length\n    },\n    processed_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "metrics",
+      "name": "Calculate Metrics",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Receive Text": {
+      "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]]
+    },
+    "Validate Input": {
+      "main": [[{ "node": "Call x402 Humanize", "type": "main", "index": 0 }]]
+    },
+    "Call x402 Humanize": {
+      "main": [[{ "node": "Calculate Metrics", "type": "main", "index": 0 }]]
+    },
+    "Calculate Metrics": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  ],
+  "active": false,
+  "settings": {},
+  "id": "3"
+}
