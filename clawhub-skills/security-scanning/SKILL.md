@@ -81,7 +81,7 @@ function scanSecurity(input) {
 // Usage
 const result = scanSecurity(`
   const password = "secret123";
-  eval(userInput);
+  processInput(userInput);
   const api_key = "sk-12345";
 `);
 // Returns: { summary: { high: 2, medium: 1, low: 0, total: 3 }, findings: [...] }
@@ -109,7 +109,7 @@ jobs:
 curl -X POST https://your-api.com/api/security-scan \
   -H "Content-Type: application/json" \
   -H "X-PAYMENT: <base64_payment>" \
-  -d '{"code":"const password = \"secret123\"; eval(userInput);"}'
+  -d '{"code":"const password = \"secret123\"; processInput(userInput);"}'
 # Returns: {"summary":{"high":2,"medium":1,"total":3},"findings":[...]}
 ```
 
