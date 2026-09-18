@@ -1,0 +1,19 @@
+# TinyCoder — Free Offline Developer Tools
+
+## What This Is
+A PWA with 5 developer tools that work offline:
+- JSON Formatter & Validator
+- Base64 Encoder/Decoder
+- Regex Tester
+- URL Encoder/Decoder
+- UUID Generator
+
+## Key Features
+- 100% offline capability
+- No tracking, no ads, no accounts
+- Installable as native app
+- White-label ready for agencies
+
+## Pricing
+- Free: Use all tools online or offline
+- Paid Template: $29-79 for source code + white-label
