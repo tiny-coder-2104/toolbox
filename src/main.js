@@ -1,4 +1,5 @@
 import './style.css'
+import { BRAND, TOOLS } from './config.js'
 
 // UTM Convention:
 // utm_source = platform (reddit, devto, github, twitter)
@@ -6,9 +7,10 @@ import './style.css'
 // utm_campaign = initiative (lead_gen_2026, seo_content, community)
 // Example: ?utm_source=reddit&utm_medium=free_tool&utm_campaign=lead_gen_2026
 
-const GUMROAD_URL = 'https://tinycoderstudio.gumroad.com/l/gyhehh'
+const GUMROAD_URL = BRAND.gumroad
 const GUMROAD_UTM = '?utm_source=toolbox&utm_medium=free_tool&utm_campaign=lead_gen_2026'
 const GA_MEASUREMENT_ID = 'G-VF1WRGBKM5'
+const FREE_TOOL_URL = BRAND.freeTool
 
 function gtag(event, params) {
   window.dataLayer = window.dataLayer || []
@@ -26,14 +28,6 @@ function trackChatbotMessage() { gtag('chatbot_message') }
 function trackGumroadClick() { gtag('gumroad_click', { method: 'cta' }) }
 
 const getApp = () => document.getElementById('app')
-
-const TOOLS = {
-  json: { title: 'JSON Formatter', desc: 'Format, validate, and minify JSON', icon: '{}' },
-  base64: { title: 'Base64 Encoder', desc: 'Encode and decode Base64 strings', icon: 'B64' },
-  regex: { title: 'Regex Tester', desc: 'Test regular expressions with live highlights', icon: '.*' },
-  url: { title: 'URL Encoder', desc: 'Encode and decode URLs', icon: 'URL' },
-  uuid: { title: 'UUID Generator', desc: 'Generate UUIDs instantly', icon: 'Ux' }
-}
 
 function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
