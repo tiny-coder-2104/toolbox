@@ -266,3 +266,20 @@
 - **Deviations:** Could not capture triage baseline (session expired); user must log in manually first
 - **What remains for OpenSea report:** Human must log in to Bugcrowd in Chrome, then run `bugcrowd-submit.js --program opensea --report ... --yes`
 - Committed and pushed to GitHub master
+
+## Session 18 — 2026-09-22
+**Action**: SEO tickets — GitHub README + GitHub Sponsors (tinycoder-0045, 0046)
+- @dev-worker updated README.md with SEO hero section (2360+ words)
+  - Added Vercel Deploy button at top
+  - Added hero section: Live Demo, Free Tool (JSON Formatter), Full PWA Template $29
+  - Added config.js one-file rebrand documentation section
+  - Added PWA Architecture, Browser Support, Build Process sections
+  - Added GitHub Sponsors section with link
+  - Added Keywords section with pwa, template, offline, installable, freelance, vercel
+- Created `src/config.js` — centralized rebrand config (BRAND, THEME, TOOLS, PRICING)
+- Integrated `src/config.js` into `src/main.js` (import { BRAND, TOOLS })
+- Created `.github/FUNDING.yml` for GitHub Sponsors (0% fee, passive income)
+- Build verified: `npx vite build` passes, dist/ output correct
+- Pushed to GitHub master
+- **GitHub Sponsors**: Requires manual enable at https://github.com/sponsors/tiny-coder-2104 (no CLI/API available)
+- 🔜 Next: Enable GitHub Sponsors via web UI, upload free JSON Formatter to Gumroad $0
